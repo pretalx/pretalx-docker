@@ -15,7 +15,7 @@ This repository contains a docker-compose setup as well as an [ansible](https://
 
 ### For production
 
-* Edit ``conf/pretalx.conf`` and fill in your own values (→ [configuration
+* Edit ``conf/pretalx.cfg`` and fill in your own values (→ [configuration
   documentation](https://docs.pretalx.org/en/latest/administrator/configure.html))
 * Edit ``docker-compose.yml`` and remove the complete section with ``ports: - "80:80"`` from the file (if you go with
   traefic as reverse proxy) or change the line to ``ports: - "8355:80"`` (if you use nginx). **Change the
