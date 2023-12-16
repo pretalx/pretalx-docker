@@ -41,7 +41,6 @@ if [ "$1" == "webworker" ]; then
 fi
 
 if [ "$1" == "taskworker" ]; then
-    export C_FORCE_ROOT=True
     exec celery -A pretalx.celery_app worker -l info
 fi
 
