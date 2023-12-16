@@ -12,6 +12,7 @@ services:
     volumes: 
       - ./conf/pretalx.cfg:/etc/pretalx/pretalx.cfg:ro
       - pretalx-data:/data
+      - pretalx-public:/public
     labels:
        traefik.docker.network: "pretalxdocker"
        traefik.enable: "true"
@@ -39,5 +40,6 @@ services:
 volumes:
   pretalx-db:
   pretalx-data:
+  pretalx-public:
   pretalx-redis:
 
