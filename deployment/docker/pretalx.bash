@@ -50,7 +50,8 @@ if [ "$1" == "shell" ]; then
 fi
 
 if [ "$1" == "upgrade" ]; then
-    exec python3 -m pretalx rebuild
+    exec python3 -m pretalx rebuild --npm-install
+    exec python3 -m pretalx regenerate_css
 fi
 
 exec python3 -m pretalx $*
