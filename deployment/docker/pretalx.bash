@@ -1,6 +1,9 @@
 #!/bin/bash
 cd /pretalx/src
-export PRETALX_DATA_DIR=/data
+export PRETALX_DATA_DIR="${PRETALX_DATA_DIR:-/data}"
+export PRETALX_FILESYSTEM_LOGS="${PRETALX_FILESYSTEM_LOGS:-/data/logs}"
+export PRETALX_FILESYSTEM_MEDIA="${PRETALX_FILESYSTEM_MEDIA:-/public/media}"
+export PRETALX_FILESYSTEM_STATIC="${PRETALX_FILESYSTEM_STATIC:-/public/static}"
 export HOME=/pretalx
 export GUNICORN_WORKERS="${GUNICORN_WORKERS:-${WEB_CONCURRENCY:-$((2 * $(nproc)))}}"
 export GUNICORN_MAX_REQUESTS="${GUNICORN_MAX_REQUESTS:-1200}"
@@ -8,11 +11,11 @@ export GUNICORN_MAX_REQUESTS_JITTER="${GUNICORN_MAX_REQUESTS_JITTER:-50}"
 
 AUTOMIGRATE="${AUTOMIGRATE:-yes}"
 
-if [ ! -d /data/logs ]; then
-    mkdir /data/logs;
+if [ ! -d "$PRETALX_FILESYSTEM_LOGS" ]; then
+    mkdir "$PRETALX_FILESYSTEM_LOGS";
 fi
-if [ ! -d /data/media ]; then
-    mkdir /data/media;
+if [ ! -d "$PRETALX_FILESYSTEM_MEDIA" ]; then
+    mkdir "$PRETALX_FILESYSTEM_MEDIA";
 fi
 
 if [ "$1" == "cron" ]; then
