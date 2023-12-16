@@ -37,10 +37,9 @@ RUN python3 -m pretalx migrate
 
 RUN apt-get update && \
     apt-get install -y nodejs npm && \
-    python3 -m pretalx rebuild && \
-    apt-get remove -y nodejs npm && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pretalx rebuild
 
 RUN chmod +x /usr/local/bin/pretalx && \
     cd /pretalx/src && \
