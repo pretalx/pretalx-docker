@@ -20,7 +20,7 @@ This repository contains a docker-compose setup as well as an [ansible](https://
   traefic as reverse proxy) or change the line to ``ports: - "127.0.0.1:8355:80"`` (if you use nginx). **Change the
   database password.**
 * If you don't want to use docker volumes, create directories for the persistent data and make them read-writeable for
-  the userid 999 and the groupid 999. Change ``pretalx-redis, pretalx-db and pretalx-data`` to the corresponding
+  the userid 999 and the groupid 999. Change ``pretalx-redis, pretalx-db, pretalx-data and pretalx-public`` to the corresponding
   directories you've chosen.
 * Configure a reverse-proxy for better security and to handle TLS. Pretalx listens on port 80 in the ``pretalxdocker``
   network. I recommend to go with traefik for its ease of setup, docker integration and [LetsEncrypt
