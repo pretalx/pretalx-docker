@@ -6,6 +6,8 @@ export GUNICORN_WORKERS="${GUNICORN_WORKERS:-${WEB_CONCURRENCY:-$((2 * $(nproc))
 export GUNICORN_MAX_REQUESTS="${GUNICORN_MAX_REQUESTS:-1200}"
 export GUNICORN_MAX_REQUESTS_JITTER="${GUNICORN_MAX_REQUESTS_JITTER:-50}"
 
+AUTOMIGRATE="${AUTOMIGRATE:-yes}"
+
 if [ ! -d /data/logs ]; then
     mkdir /data/logs;
 fi
@@ -17,7 +19,9 @@ if [ "$1" == "cron" ]; then
     exec python3 -m pretalx runperiodic
 fi
 
-python3 -m pretalx migrate --noinput
+if [ "$AUTOMIGRATE" != "skip" ]; then
+    python3 -m pretalx migrate --noinput
+fi
 
 if [ "$1" == "all" ]; then
     exec sudo /usr/bin/supervisord -n -c /etc/supervisord.conf
