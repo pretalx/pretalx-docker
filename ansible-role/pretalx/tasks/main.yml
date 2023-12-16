@@ -33,6 +33,10 @@
   docker_volume:
     name: pretalx_data
 
+- name: Create pretalx public volume
+  docker_volume:
+    name: pretalx_public
+
 - name: Create redis container
   docker_container:
     name: pretalx-redis
@@ -77,6 +81,7 @@
     restart_policy: unless-stopped
     volumes:
       - pretalx_data:/data
+      - pretalx_public:/public
       - "{{ pretalx_cfg_dir }}/pretalx.cfg:/etc/pretalx/pretalx.cfg"
     networks:
       - name: web
@@ -98,6 +103,7 @@
       - "80:80"
     volumes:
       - pretalx_data:/data
+      - pretalx_public:/public
       - "{{ pretalx_cfg_dir }}/pretalx.cfg:/etc/pretalx/pretalx.cfg"
     networks:
       - name: web
