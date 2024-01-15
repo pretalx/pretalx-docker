@@ -7,6 +7,9 @@ services:
     depends_on: 
       - redis
       - db
+    environment:
+      PRETALX_FILESYSTEM_MEDIA: /public/media
+      PRETALX_FILESYSTEM_STATIC: /public/static
     ports:
       - "80:80"
     volumes: 
