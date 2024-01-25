@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /pretalx/src || exit
+cd /pretalx/src || exit 1
 export PRETALX_DATA_DIR="${PRETALX_DATA_DIR:-/data}"
 export HOME=/pretalx
 
