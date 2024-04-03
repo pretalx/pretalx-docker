@@ -28,9 +28,13 @@ This repository contains a docker-compose setup as well as an [ansible](https://
   is located at ``reverse-proxy-examples/docker-compose``. You can also find a few words on an nginx configuration at
   ``reverse-proxy-examples/nginx``
 * Make sure you serve all requests for the `/static/` and `/media/` paths (when `debug=false`). See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
-* Optional: To adjust the number of [Gunicorn workers](https://docs.gunicorn.org/en/stable/settings.html#workers), provide
-  the container with `GUNICORN_WORKERS` environment variable. Similarly you can use `GUNICORN_MAX_REQUESTS` and
-  `GUNICORN_MAX_REQUESTS_JITTER` to configure the requests a worker instance will process before restarting. `GUNICORN_FORWARDED_ALLOW_IPS` lets you specify which IPs to trust (i.e. which reverse proxies' `X-Forwarded-*` headers can be used to infer connection security).
+* Optional: Some of the Gunicorn parameters can be adjusted via environment viariables:
+  * To adjust the number of [Gunicorn workers](https://docs.gunicorn.org/en/stable/settings.html#workers), provide
+  the container with `GUNICORN_WORKERS` environment variable.
+  * `GUNICORN_MAX_REQUESTS` and `GUNICORN_MAX_REQUESTS_JITTER` to configure the requests a worker instance will process before restarting.
+  * `GUNICORN_FORWARDED_ALLOW_IPS` lets you specify which IPs to trust (i.e. which reverse proxies' `X-Forwarded-*` headers can be used to infer connection security). 
+  * `GUNICORN_BIND_ADDR` can be used to change the interface and port that Gunicorn will listen on. Default: `0.0.0.0:80`
+  
   Here's how to set an environment variable [in
   `docker-compose.yml`](https://docs.docker.com/compose/environment-variables/set-environment-variables/)
   or when using [`docker run` command](https://docs.docker.com/engine/reference/run/#env-environment-variables).
