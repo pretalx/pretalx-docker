@@ -1,7 +1,7 @@
 name: Docker
 
 on:
-  workflow_dispatch: # allows to be run manually
+  workflow_dispatch: # Allow manual run
   push:
     tags:
       - '*'
