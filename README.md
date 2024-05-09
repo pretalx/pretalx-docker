@@ -29,7 +29,7 @@ You will likely want to provide email settings to a live environment.
 
 Additional variables were introduced to configure the web proxy, the containers, the image build and the database:
 
-- `FQDN`, fully-qualified domain name, used for the Traefik `Host` matcher in the `live` configuration and for the `plugins` images
+- `FQDN`, fully-qualified domain name, used for the `Host` matcher in the `traefik` configuration and for the `plugins` images
 - `POSTGRES_DB`, Postgres database name
 - `POSTGRES_USER`, Postgres user name
 - `POSTGRES_PASSWORD`, Postgres user password
@@ -93,7 +93,7 @@ We are making good use of [YAML Fragments in the Compose files](https://docs.doc
 
 Feel free to adapt these examples to your liking. E.g. you may need to copy and paste the adaptations into the single manifest, e.g. to run without `-f` modifiers, or have the main file called `docker-compose.yml` for the ancient version of `docker-compose`.
 
-### Local development of the Container image and the Compose manifest
+### Local building of the Container image and the Compose manifest
 
 These were the commands frequently used to develop this Compose manifest:
 
@@ -104,37 +104,31 @@ docker build --load -t library/pretalx/pretalx:latest context/default
 The previous command is equivalent to:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml build app
+docker compose -f compose.yml -f compose.build.yml build app
 ```
 
 This will build the image with the name `${PRETALX_IMAGE}:${PRETALX_TAG}`, as specified by the inferred `image:` directive.
 
-You may want to watch your Podman for the health of the containers from another shell:
-
-```sh
-watch -n 0.5 podman ps
-```
-
 If you have chosen not to disable BuildX, you can preview its configuration derieved from the Compose manifests:
 
 ```sh
-docker buildx bake -f compose.yml -f compose.local.yml --print
+docker buildx bake -f compose.yml -f compose.build.yml --print
 ```
 
-### Live deployment
+###  deployment
 
 This assumes the presence of the image at the expected location in Docker Hub and a fully configured `traefik` instance connected to the `web` network.
 
 ```sh
-docker compose -f compose.yml -f compose.live.yml config
+docker compose -f compose.yml -f compose.traefik.yml config
 ```
 
-### Local live-like deployment
+### Local -like deployment
 
 If you were running a local `traefik` instance on a local `web` network, maybe even with a Smallstep CA for provisioning ACME certificates for your `.internal` network, you could add the network and necessary labels with:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.live.yml config
+docker compose -f compose.yml -f compose.local.yml -f compose.traefik.yml config
 ```
 
 ### With plugins
@@ -147,10 +141,10 @@ This is achieved by creating overlay OCI file system layers and building a custo
 docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml config
 ```
 
-Or in a live environment:
+Or in a  environment:
 
 ```sh
-docker compose -f compose.yml -f compose.live.yml -f compose.plugins.yml config
+docker compose -f compose.yml -f compose.traefik.yml -f compose.plugins.yml config
 ```
 
 All Compose commands apply from here.
@@ -164,7 +158,7 @@ bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --
 The previous command is equivalent to:
 
 ```sh
-bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --build-arg PRETALX_TAG=${PRETALX_TAG} -t pretalx-${FQDN} context/plugins'
+docker compose -f compose.yml -f compose.build.yml -f compose.plugins.yml build app
 ```
 
 This does not work with BuildX, which for this step must be disabled as shown above, due to known regressions.
@@ -175,17 +169,29 @@ This does not work with BuildX, which for this step must be disabled as shown ab
 
 </details>
 
+Yet you can use it to review the build context:
+
+```sh
+docker buildx bake -f compose.yml -f compose.build.yml -f compose.plugins.yml --print
+```
+
 ## Run
+
+You may want to watch your Podman for the health of the containers from another shell:
+
+```sh
+watch -n 0.5 podman ps
+```
 
 ### Locally
 
 When you are done with building and preloading the images into your local image store, you can start the composition with:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml up -d
+docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml up -d
 ```
 
-Continue to *Configure* below.
+- **Continue** to *Initialisation* below.
 
 ### Live
 
@@ -195,11 +201,11 @@ To run this in a live environment, it is not needed to build the images locally.
 docker compose -f compose.yml -f compose.plugins.yml up -d
 ```
 
-Continue to *Configure* below.
+- **Continue** to *Initialisation* below.
 
-A default blend of plugins can be provided in a separate image for distribution and could be automated here @pretalx or in other third-party repositories.
-
-This would allow to provide an alternative overlay that does not build the images that are equipped with plugins, but reuses some which are already published.
+> A default blend of plugins can be provided in another image for distribution and could be built automatically here @pretalx or in other third-party repositories.
+>
+> This would allow to provide an alternative Compose overlay that does not need to build the images with plugins, but reuses some which are already published.
 
 ### Management commands
 
@@ -207,29 +213,20 @@ The image's entrypoint is configured to support passing down all management comm
 
 - [Management commands — pretalx documentation](https://docs.pretalx.org/administrator/commands/)
 
-They can be used from within a running `app` container with directly calling the `pretalx` module with `python` and passing the name of the task, here `showmigrations`:
+They can be used from within a running `app` container with directly calling the `pretalx` module with `python` and passing the name of the task, here `showmigrations` for example:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx showmigrations
+docker compose exec app python -m pretalx showmigrations
 ```
 
-### Maintenance and update
-
-Runtime commands are used to update an instance:
-
-- [Maintenance — pretalx documentation](https://docs.pretalx.org/administrator/maintenance/#updates)
-
-```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx rebuild --npm-install
-docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx regenerate_css
-```
+This does not need to have the `-f compose.{build.,local.,plugins.,traefik.}yml` overlays present, which don't affect the `exec` function.
 
 ## Initialisation
 
 You can start configuring your instance, when your `web` container shows as `healthy` in `podman ps`. If you were locally developing this Compose manifest and the associated Container images for a Pretalx deployment with plugins, your initialisation command reads:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx init
+docker compose exec app python -m pretalx init
 ```
 
 Please adapt it to your use case by adding or removing `-f` arguments. You will see this configuration summary and the initialisation wizard:
@@ -263,8 +260,8 @@ As you can see, we are not using a settings file. This is not needed, due to fol
 There are few lifecycle commands, which can help you reduce local resource usage. They are:
 
 ```sh
-docker compose --remove-orphans
-docker images | rg '<none>' | awk '{ print $3 }' | xargs docker rmi
+docker compose down --remove-orphans
+docker images | grep '<none>' | awk '{ print $3 }' | xargs docker rmi
 ```
 
 You can now start building images and creating containers from scratch.
@@ -279,7 +276,7 @@ docker volume rm $(docker volume ls -q | grep pretalx)
 Remove `.env` when you need to reset the whole setup completely.
 
 ```sh
-docker compose down --remove-orphans --volumes
+docker compose down -v --remove-orphans
 rm .env
 ```
 
