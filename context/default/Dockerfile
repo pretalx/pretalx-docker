@@ -1,5 +1,5 @@
 ARG PYTHON_IMAGE=docker.io/library/python
-ARG PYTHON_TAG=3.10-bookworm
+ARG PYTHON_TAG=3.12-bookworm
 
 FROM ${PYTHON_IMAGE}:${PYTHON_TAG}
 
