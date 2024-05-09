@@ -2,11 +2,10 @@ services:
   web:
     ports:
       - 8080:80
-  app: &local-default
-    build: ./context/default
+#  app: &local-default
 #    volumes:
 #      - ./context/default/entrypoint.sh:/pretalx/entrypoint.sh:z
 #      - ./config/pretalx.cfg:/pretalx/.pretalx.cfg:z
-  worker: *local-default
-  cron: *local-default
-  migrations: *local-default
+#  worker: *local-default
+#  cron: *local-default
+#  migrations: *local-default

@@ -1,0 +1,6 @@
+services:
+  app: &build-default
+    build: ./context/default
+  worker: *build-default
+  cron: *build-default
+  migrations: *build-default
