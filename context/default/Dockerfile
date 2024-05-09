@@ -1,14 +1,16 @@
-FROM python:3.10-bookworm
+ARG PYTHON_IMAGE=docker.io/library/python
+ARG PYTHON_TAG=3.10-bookworm
 
+FROM ${PYTHON_IMAGE}:${PYTHON_TAG}
+
+# Install system dependencies
 RUN apt update && \
     apt install -y \
                 cron \
                 git \
                 gettext \
-                libmariadb-dev \
                 libpq-dev \
                 locales \
-                libmemcached-dev \
                 build-essential \
                 locales \
                 nodejs \
@@ -18,7 +20,8 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/* && \
     dpkg-reconfigure locales && \
     locale-gen C.UTF-8 && \
-    /usr/sbin/update-locale LANG=C.UTF-8
+    /usr/sbin/update-locale LANG=C.UTF-8 \
+    npm i -g npm
 
 ENV LC_ALL=C.UTF-8
 
@@ -38,6 +41,8 @@ RUN crontab /etc/crontab
 USER pretalx
 WORKDIR /pretalx
 
+ARG PRETALX_VERSION=2024.1.0
+
 # Provide PIP with a correct path to install binaries
 RUN mkdir -p /pretalx/.local/bin
 ENV PATH="/pretalx/.local/bin:${PATH}"
@@ -50,7 +55,7 @@ RUN pip3 install -U pip \
                     pylibmc \
                     gunicorn
 # Install Pretalx with Postgres and Redis database adapters
-RUN pip3 install -U pretalx[postgres,redis]
+RUN pip3 install -U pretalx[postgres,redis]==${PRETALX_VERSION}
 
 COPY --chown=999 --chmod=755 entrypoint.sh /pretalx/entrypoint.sh
 
