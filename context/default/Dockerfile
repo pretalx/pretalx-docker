@@ -11,6 +11,7 @@ RUN apt update && \
                 gettext \
                 libpq-dev \
                 locales \
+                libmemcached-dev \
                 build-essential \
                 locales \
                 nodejs \
