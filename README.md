@@ -1,65 +1,319 @@
 # pretalx-docker
 
-This repository contains a docker-compose setup as well as an [ansible](https://docs.ansible.com) role for a
-[pretalx](https://github.com/pretalx/pretalx) installation based on docker.
+This repository contains a Container image and a Docker Compose setup for a
+[pretalx](https://github.com/pretalx/pretalx) installation.
 
-**Please note that this repository is provided by the pretalx community, and not supported by the pretalx team.**
+> **Please note that this repository is provided by the pretalx community, and not supported by the pretalx team.**
 
-## Installation with docker-compose
+## Installation
 
-### For testing
+This repository follows the Pretalx installation instructions as closely as possible.
 
-* Run ``docker-compose up -d``. After a few minutes the setup should be accessible at http://localhost/orga
-* Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init``.
+- [Installation — pretalx documentation](https://docs.pretalx.org/administrator/installation/)
 
-### For production
+## Configuration
 
-* Edit ``conf/pretalx.cfg`` and fill in your own values (→ [configuration
-  documentation](https://docs.pretalx.org/en/latest/administrator/configure.html))
-* Edit ``docker-compose.yml`` and remove the complete section with ``ports: - "80:80"`` from the file (if you go with
-  traefic as reverse proxy) or change the line to ``ports: - "127.0.0.1:8355:80"`` (if you use nginx). **Change the
-  database password.**
-* If you don't want to use docker volumes, create directories for the persistent data and make them read-writeable for
-  the userid 999 and the groupid 999. Change ``pretalx-redis``, ``pretalx-db``, ``pretalx-data`` and ``pretalx-public`` to the corresponding
-  directories you've chosen.
-* Configure a reverse-proxy for better security and to handle TLS. Pretalx listens on port 80 in the ``pretalxdocker``
-  network. I recommend to go with traefik for its ease of setup, docker integration and [LetsEncrypt
-  support](https://docs.traefik.io/user-guide/docker-and-lets-encrypt/). An example to copy into the normal compose file
-  is located at ``reverse-proxy-examples/docker-compose``. You can also find a few words on an nginx configuration at
-  ``reverse-proxy-examples/nginx``
-* Make sure you serve all requests for the `/static/` and `/media/` paths (when `debug=false`). See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
-* Optional: Some of the Gunicorn parameters can be adjusted via environment viariables:
-  * To adjust the number of [Gunicorn workers](https://docs.gunicorn.org/en/stable/settings.html#workers), provide
-  the container with `GUNICORN_WORKERS` environment variable.
-  * `GUNICORN_MAX_REQUESTS` and `GUNICORN_MAX_REQUESTS_JITTER` to configure the requests a worker instance will process before restarting.
-  * `GUNICORN_FORWARDED_ALLOW_IPS` lets you specify which IPs to trust (i.e. which reverse proxies' `X-Forwarded-*` headers can be used to infer connection security). 
-  * `GUNICORN_BIND_ADDR` can be used to change the interface and port that Gunicorn will listen on. Default: `0.0.0.0:80`
-  
-  Here's how to set an environment variable [in
-  `docker-compose.yml`](https://docs.docker.com/compose/environment-variables/set-environment-variables/)
-  or when using [`docker run` command](https://docs.docker.com/engine/reference/run/#env-environment-variables).
-* Run ``docker-compose up -d ``. After a few minutes the setup should be accessible under http://yourdomain.com/orga
-* Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init``.
-* Set up a cronjob for periodic tasks like this ``15,45 * * * * docker exec pretalx-app pretalx runperiodic``
+The repository implements the dot env pattern to configure all application containers through environmental variables.
 
+The setup prepares all environmental variables supported by Pretalx:
 
-## Installation with ansible
+- [Configuration — pretalx documentation](https://docs.pretalx.org/administrator/configure/)
 
-(Please note that we also provide a second ansible role for use without docker
-[here](https://github.com/pretalx/ansible-pretalx/)).
+Copy the example and modify it according to your setup:
 
-### For testing
+```sh
+cp .env.example .env
+```
 
-* Add the role at ``ansible-role`` to your ansible setup.
-* Roll out the role
-* You should be able to reach pretalx at ``http://localhost/orga``
-* Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init``.
+You will likely want to provide email settings to a live environment.
 
-### For production
+Additional variables were introduced to configure the web proxy, the containers, the image build and the database:
 
-* Add the role at ``ansible-role`` to your ansible setup.
-* Fill in the variables listed in the ``vars/main.yml`` file. **Make sure to set testing to false!**
-* Set up a reverse proxy to handle TLS. traefik is recommended. The containers that get rolled out are already tagged
-  for traefik. An example role for traefik is included at ``reverse-proxy-examples/ansible/traefik``.
-* Roll out the role. After a few minutes pretalx should be reachable at the configured domain.
-* Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init`` .
+- `FQDN`, fully-qualified domain name, used for the Traefik `Host` matcher in the `live` configuration and for the `plugins` images
+- `POSTGRES_DB`, Postgres database name
+- `POSTGRES_USER`, Postgres user name
+- `POSTGRES_PASSWORD`, Postgres user password
+- `PRETALX_LOG_LEVEL`, Gunicorn and Celery log level
+- `PRETALX_IMAGE`, Pretalx Container image name
+- `PRETALX_TAG`, Pretalx Container image tag
+
+The following variables are available to configure the Gunicorn web process:
+
+- `GUNICORN_WORKERS`
+- `GUNICORN_MAX_REQUESTS`
+- `GUNICORN_MAX_REQUESTS_JITTER`
+- `GUNICORN_FORWARDED_ALLOW_IPS`
+- `GUNICORN_BIND_ADDR`
+
+Please refer to [`context/default/entrypoint.sh`](./context/default/entrypoint.sh) and [the Gunicorn settings documentation](https://docs.gunicorn.org/en/stable/settings.html) about their usage.
+
+## Build
+
+This repository is used for building Container images from the source manifests present here.
+
+> It does not cover the use case of building a Pretalx development environment.
+>
+> It is left for the curious reader to propose this with [development containers](https://containers.dev/) directly to the `pretalx/pretalx` repository.
+
+### CI
+
+We provide a CI manifest to build and push container images to Docker Hub (`docker.io`) and to the GitHub Container Registry (`ghcr.io`).
+
+Find it in `.github/workflows/build.yml`.
+
+### Setting up the build environment
+
+For educational purposes we implement this with Docker Compose on a Rootless Podman context on a SELinux-enabled Linux host, using the Docker CLI with a context on the local socket of the Podman systemd user unit.
+
+- [Using Podman and Docker Compose | Enable Sysadmin](https://www.redhat.com/sysadmin/podman-docker-compose)
+
+```sh
+$ systemctl --user start podman.service podman.socket
+$ docker context create podman --docker 'host=tcp:///run/user/1000/podman/podman.sock'
+$ docker context use podman
+$ docker context ls
+NAME       DESCRIPTION                               DOCKER ENDPOINT                            ERROR
+default    Current DOCKER_HOST based configuration   unix:///var/run/docker.sock
+podman *                                             unix:///run/user/1000/podman/podman.sock
+```
+
+If your system does not have SELinux enabled or you wish to use this only with the regular Docker and Compose tooling, remove the SELinux-specific configuration:
+
+```sh
+sed '/selinux/d' -i compose.yml
+```
+
+To speed up builds for the a single local platform, you can disable BuildX with:
+
+```sh
+export DOCKER_BUILDKIT=0
+```
+
+We are making good use of [YAML Fragments in the Compose files](https://docs.docker.com/compose/compose-file/10-fragments/).
+
+Feel free to adapt these examples to your liking. E.g. you may need to copy and paste the adaptations into the single manifest, e.g. to run without `-f` modifiers, or have the main file called `docker-compose.yml` for the ancient version of `docker-compose`.
+
+### Local development of the Container image and the Compose manifest
+
+These were the commands frequently used to develop this Compose manifest:
+
+```sh
+docker build --load -t library/pretalx/pretalx:latest context/default
+```
+
+The previous command is equivalent to:
+
+```sh
+docker compose -f compose.yml -f compose.local.yml build app
+```
+
+This will build the image with the name `${PRETALX_IMAGE}:${PRETALX_TAG}`, as specified by the inferred `image:` directive.
+
+You may want to watch your Podman for the health of the containers from another shell:
+
+```sh
+watch -n 0.5 podman ps
+```
+
+If you have chosen not to disable BuildX, you can preview its configuration derieved from the Compose manifests:
+
+```sh
+docker buildx bake -f compose.yml -f compose.local.yml --print
+```
+
+### Live deployment
+
+This assumes the presence of the image at the expected location in Docker Hub and a fully configured `traefik` instance connected to the `web` network.
+
+```sh
+docker compose -f compose.yml -f compose.live.yml config
+```
+
+### Local live-like deployment
+
+If you were running a local `traefik` instance on a local `web` network, maybe even with a Smallstep CA for provisioning ACME certificates for your `.internal` network, you could add the network and necessary labels with:
+
+```sh
+docker compose -f compose.yml -f compose.local.yml -f compose.live.yml config
+```
+
+### With plugins
+
+There is a need to accommodate for the presence of Pretalx plugins in this configuration.
+
+This is achieved by creating overlay OCI file system layers and building a custom container image based on the default build context.
+
+```sh
+docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml config
+```
+
+Or in a live environment:
+
+```sh
+docker compose -f compose.yml -f compose.live.yml -f compose.plugins.yml config
+```
+
+All Compose commands apply from here.
+
+If you had successfully built your local Pretalx image, you could build the plugin images with:
+
+```sh
+bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --build-arg PRETALX_TAG=${PRETALX_TAG} -t pretalx-${FQDN} context/plugins'
+```
+
+The previous command is equivalent to:
+
+```sh
+bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --build-arg PRETALX_TAG=${PRETALX_TAG} -t pretalx-${FQDN} context/plugins'
+```
+
+This does not work with BuildX, which for this step must be disabled as shown above, due to known regressions.
+
+<details><summary>Reference</summary>
+
+- [Docker build "FROM" Fails to search local images · Issue #795 · docker/buildx](https://github.com/docker/buildx/issues/795)
+
+</details>
+
+## Run
+
+### Locally
+
+When you are done with building and preloading the images into your local image store, you can start the composition with:
+
+```sh
+docker compose -f compose.yml -f compose.local.yml up -d
+```
+
+Continue to *Configure* below.
+
+### Live
+
+To run this in a live environment, it is not needed to build the images locally. They will be provided by Docker Hub.
+
+```sh
+docker compose -f compose.yml -f compose.plugins.yml up -d
+```
+
+Continue to *Configure* below.
+
+A default blend of plugins can be provided in a separate image for distribution and could be automated here @pretalx or in other third-party repositories.
+
+This would allow to provide an alternative overlay that does not build the images that are equipped with plugins, but reuses some which are already published.
+
+### Management commands
+
+The image's entrypoint is configured to support passing down all management commands to Pretalx.
+
+- [Management commands — pretalx documentation](https://docs.pretalx.org/administrator/commands/)
+
+They can be used from within a running `app` container with directly calling the `pretalx` module with `python` and passing the name of the task, here `showmigrations`:
+
+```sh
+docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx showmigrations
+```
+
+### Maintenance and update
+
+Runtime commands are used to update an instance:
+
+- [Maintenance — pretalx documentation](https://docs.pretalx.org/administrator/maintenance/#updates)
+
+```sh
+docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx rebuild --npm-install
+docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx regenerate_css
+```
+
+## Initialisation
+
+You can start configuring your instance, when your `web` container shows as `healthy` in `podman ps`. If you were locally developing this Compose manifest and the associated Container images for a Pretalx deployment with plugins, your initialisation command reads:
+
+```sh
+docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml exec app python -m pretalx init
+```
+
+Please adapt it to your use case by adding or removing `-f` arguments. You will see this configuration summary and the initialisation wizard:
+
+```console
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ┏━━━━━━━━━━┓  pretalx v2024.1.0                                                 ┃
+┃ ┃  ┌─·──╮  ┃  Settings:                                                         ┃
+┃ ┃  │  O │  ┃  Database:  pretalx (postgresql)                                   ┃
+┃ ┃  │ ┌──╯  ┃  Logging:   /data/logs                                             ┃
+┃ ┃  └─┘     ┃  Root dir:  /pretalx/.local/lib/python3.10/site-packages/pretalx   ┃
+┃ ┗━━━┯━┯━━━━┛  Python:    /usr/local/bin/python                                  ┃
+┃     ╰─╯       Plugins:   pretalx_pages, pretalx_public_voting, prtx_faq         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Welcome to pretalx! This is my initialization command, please use it only once.
+You can abort this command at any time using C-c, and it will save no data.
+
+Let's get you a user with the right to create new events and access every event on this pretalx instance.
+E-mail:
+```
+
+After finishing the questionnaire, you can login at http://localhost:8080/orga/.
+
+> One of the first steps may very well be to disable telemetry and update notifications, when wanting to watch this from the outside perspective of tagged Container images.
+
+As you can see, we are not using a settings file. This is not needed, due to following the dot env pattern for [12factor.net](https://12factor.net) cloud-native applications. An example for `pretalx.cfg` and how to add it to the containers is available in this repository, in case needed.
+
+## Recycle
+
+There are few lifecycle commands, which can help you reduce local resource usage. They are:
+
+```sh
+docker compose --remove-orphans
+docker images | rg '<none>' | awk '{ print $3 }' | xargs docker rmi
+```
+
+You can now start building images and creating containers from scratch.
+
+To delete eventual state, you can run either of these commands:
+
+```sh
+docker compose down --volumes
+docker volume rm $(docker volume ls -q | grep pretalx)
+```
+
+Remove `.env` when you need to reset the whole setup completely.
+
+```sh
+docker compose down --remove-orphans --volumes
+rm .env
+```
+
+## Authors
+
+- Bastian Hodapp
+- Bruno Morisson
+- Daniel Goodman
+- Hadrien
+- Ian Foster
+- Johan Van de Wauw
+- Jon Richter
+- Jonathan Günz
+- Luca
+- Lukas
+- Marcus Müller
+- Matt Yaraskavitch
+- MaxR
+- Michal Stanke
+- Simeon Keske
+- Simon
+- Simon Hötten
+- Timon Erhart
+- Tobias Kunze
+- geleeroyale
+- jascha ehrenreich
+- kuhball
+- plaste
+- realitygaps
+
+## License
+
+CC0
+
+## Copyright
+
+© 2018—2024 Pretalx Community
