@@ -1,0 +1,13 @@
+networks:
+  web:
+    external: true
+
+services:
+  web:
+    networks:
+      - web
+    labels:
+      traefik.enable: true
+      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
+      traefik.http.routers.local-localhost.tls: true
+      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
