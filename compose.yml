@@ -122,8 +122,7 @@ services:
       test: ['CMD-SHELL', 'bash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080) == \"200\" ]]" || exit 1']
       <<: *healthcheck
 
-    depends_on:
-      <<: *pretalx-depends-on-migrations
+    depends_on: *pretalx-depends-on-migrations
 
   worker:
     <<: *pretalx
@@ -136,8 +135,7 @@ services:
       test: ['CMD-SHELL', 'bash -c "[[ \"$(pgrep celery)\" != \"\" ]]" || exit 1']
       <<: *healthcheck
 
-    depends_on:
-      <<: *pretalx-depends-on-migrations
+    depends_on: *pretalx-depends-on-migrations
 
   cron:
     <<: *pretalx
@@ -149,16 +147,14 @@ services:
       test: ['CMD-SHELL', 'bash -c "[[ \"$(pgrep cron)\" != \"\" ]]" || exit 1']
       <<: *healthcheck
 
-    depends_on:
-      <<: *pretalx-depends-on-migrations
+    depends_on: *pretalx-depends-on-migrations
 
   migrations:
     <<: *pretalx
     command: migrate
     restart: no
 
-    depends_on:
-      <<: *pretalx-depends-on-databases
+    depends_on: *pretalx-depends-on-databases
 
 
   postgres:
