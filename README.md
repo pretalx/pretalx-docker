@@ -115,7 +115,7 @@ If you have chosen not to disable BuildX, you can preview its configuration deri
 docker buildx bake -f compose.yml -f compose.build.yml --print
 ```
 
-###  deployment
+### Live deployment
 
 This assumes the presence of the image at the expected location in Docker Hub and a fully configured `traefik` instance connected to the `web` network.
 
@@ -123,7 +123,7 @@ This assumes the presence of the image at the expected location in Docker Hub an
 docker compose -f compose.yml -f compose.traefik.yml config
 ```
 
-### Local -like deployment
+### Local live-like deployment
 
 If you were running a local `traefik` instance on a local `web` network, maybe even with a Smallstep CA for provisioning ACME certificates for your `.internal` network, you could add the network and necessary labels with:
 
@@ -141,7 +141,7 @@ This is achieved by creating overlay OCI file system layers and building a custo
 docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml config
 ```
 
-Or in a  environment:
+Or in a live environment:
 
 ```sh
 docker compose -f compose.yml -f compose.traefik.yml -f compose.plugins.yml config
