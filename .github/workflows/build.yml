@@ -1,14 +1,19 @@
-name: Docker
+name: Build/Push OCI image
 
 on:
+  workflow_dispatch: # Allow manual run
+  pull_request:
+    branches:
+      - main
+      - next
   push:
-    branches: ['main']
+    branches:
+      - next
   release:
     types: [published]
-  workflow_dispatch: # Allow manual run
 
 jobs:
-  build_and_push:
+  build_push:
     name: Build and push Docker image to Docker Hub or GHCR
     runs-on: ubuntu-latest
     env:
@@ -49,8 +54,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
+          context: ./context/default/
+          platforms: linux/amd64 #,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
