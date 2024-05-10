@@ -112,7 +112,7 @@ export DOCKER_BUILDKIT=0
 
 We are making good use of [YAML Fragments in the Compose files](https://docs.docker.com/compose/compose-file/10-fragments/).
 
-Feel free to adapt these examples to your liking. E.g. you may need to copy and paste the adaptations into the single manifest, e.g. to run without `-f` modifiers, or have the main file called `docker-compose.yml` for the ancient version of `docker-compose`.
+> Feel free to adapt these examples to your liking. E.g. you may need to copy and paste the adaptations into the single manifest, e.g. to run without `-f` modifiers, or have the main file called `docker-compose.yml` for the ancient version of `docker-compose`.
 
 ### Local building of the Container image and the Compose manifest
 
@@ -125,7 +125,7 @@ docker build --load -t library/pretalx/pretalx:latest context/default
 The previous command is equivalent to:
 
 ```sh
-docker compose -f compose.yml -f compose.build.yml build app
+docker compose -f compose.yml -f compose/build.yml build app
 ```
 
 This will build the image with the name `${PRETALX_IMAGE}:${PRETALX_TAG}`, as specified by the inferred `image:` directive.
@@ -133,7 +133,7 @@ This will build the image with the name `${PRETALX_IMAGE}:${PRETALX_TAG}`, as sp
 If you have chosen not to disable BuildX, you can preview its configuration derieved from the Compose manifests:
 
 ```sh
-docker buildx bake -f compose.yml -f compose.build.yml --print
+docker buildx bake -f compose.yml -f compose/build.yml --print
 ```
 
 ### Live deployment
@@ -141,7 +141,7 @@ docker buildx bake -f compose.yml -f compose.build.yml --print
 This assumes the presence of the image at the expected location in Docker Hub and a fully configured `traefik` instance connected to the `web` network.
 
 ```sh
-docker compose -f compose.yml -f compose.traefik.yml config
+docker compose -f compose.yml -f compose/traefik.yml config
 ```
 
 ### Local live-like deployment
@@ -149,7 +149,7 @@ docker compose -f compose.yml -f compose.traefik.yml config
 If you were running a local `traefik` instance on a local `web` network, maybe even with a Smallstep CA for provisioning ACME certificates for your `.internal` network, you could add the network and necessary labels with:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.traefik.yml config
+docker compose -f compose.yml -f compose/local.yml -f compose/traefik.yml config
 ```
 
 ### With plugins
@@ -159,13 +159,13 @@ There is a need to accommodate for the presence of Pretalx plugins in this confi
 This is achieved by creating overlay OCI file system layers and building a custom container image based on the default build context.
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml config
+docker compose -f compose.yml -f compose/local.yml -f compose/plugins.yml config
 ```
 
 Or in a live environment:
 
 ```sh
-docker compose -f compose.yml -f compose.traefik.yml -f compose.plugins.yml config
+docker compose -f compose.yml -f compose/traefik.yml -f compose/plugins.yml config
 ```
 
 All Compose commands in place of `config` apply from here.
@@ -179,7 +179,7 @@ bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --
 The previous command is equivalent to:
 
 ```sh
-docker compose -f compose.yml -f compose.build.yml -f compose.plugins.yml build app
+docker compose -f compose.yml -f compose/build.yml -f compose/plugins.yml build app
 ```
 
 This does not work with BuildX, which for this step must be disabled as shown above, due to known regressions.
@@ -193,7 +193,7 @@ This does not work with BuildX, which for this step must be disabled as shown ab
 Yet you can use it to review the build context:
 
 ```sh
-docker buildx bake -f compose.yml -f compose.build.yml -f compose.plugins.yml --print
+docker buildx bake -f compose.yml -f compose/build.yml -f compose/plugins.yml --print
 ```
 
 ## Run
@@ -209,7 +209,7 @@ watch -n 0.5 podman ps
 When you are done with building and preloading the images into your container engine's image store, you can start the composition with:
 
 ```sh
-docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml up -d
+docker compose -f compose.yml -f compose/local.yml -f compose/plugins.yml up -d
 ```
 
 - *Continue* to **Initialisation** below.
@@ -219,7 +219,7 @@ docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml up -d
 To run this in a live environment, it is not needed to build the images locally. They will be provided by Docker Hub.
 
 ```sh
-docker compose -f compose.yml -f compose.traefik.yml -f compose.plugins.yml up -d
+docker compose -f compose.yml -f compose/traefik.yml -f compose/plugins.yml up -d
 ```
 
 - *Continue* to **Initialisation** below.
@@ -287,7 +287,7 @@ After finishing the questionnaire, you can login at [`http://localhost:8080/orga
 
 > One of your first steps may very well be to disable telemetry and update notifications, when wanting to maintain versions from the "outside" perspective of tagged Container images.
 
-As you can see, we are not using a settings file. This is not needed, due to following the dot env pattern for [12factor.net](https://12factor.net) container-native applications. An example for `pretalx.cfg` and how to add it to the containers is available in `compose.local.yml` and in the `config/` subdirectory, in case needed.
+As you can see, we are not using a settings file. This is not needed, due to following the dot env pattern for [12factor.net](https://12factor.net) container-native applications. An example for `pretalx.cfg` and how to add it to the containers is available in `compose/local.yml` and in the `config/` subdirectory, in case needed.
 
 ## Recycle
 
