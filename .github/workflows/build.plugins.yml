@@ -1,4 +1,4 @@
-name: Pretalx OCI image
+name: Pretalx extended OCI image
 
 on:
   pull_request:
