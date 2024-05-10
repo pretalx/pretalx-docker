@@ -59,7 +59,7 @@ This repository is used for building Container images from the source manifests 
 
 We provide a CI manifest to build and push container images to Docker Hub (`docker.io`) and to the GitHub Container Registry (`ghcr.io`).
 
-Find it in `.github/workflows/build.yml`.
+Find it in [`.github/workflows/build.yml`](.github/workflows/build.yml).
 
 ### Setting up the build environment
 
@@ -83,7 +83,7 @@ If your system does not have SELinux enabled or you wish to use this only with t
 sed '/selinux/d' -i compose.yml
 ```
 
-To speed up builds for the a single local platform, you can disable BuildX with:
+To speed up builds and to build for the local platform only, you can disable BuildX with:
 
 ```sh
 export DOCKER_BUILDKIT=0
@@ -185,13 +185,13 @@ watch -n 0.5 podman ps
 
 ### Locally
 
-When you are done with building and preloading the images into your local image store, you can start the composition with:
+When you are done with building and preloading the images into your container engine's image store, you can start the composition with:
 
 ```sh
 docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml up -d
 ```
 
-- **Continue** to *Initialisation* below.
+- *Continue* to **Initialisation** below.
 
 ### Live
 
@@ -201,7 +201,7 @@ To run this in a live environment, it is not needed to build the images locally.
 docker compose -f compose.yml -f compose.plugins.yml up -d
 ```
 
-- **Continue** to *Initialisation* below.
+- *Continue* to **Initialisation** below.
 
 > A default blend of plugins can be provided in another image for distribution and could be built automatically here @pretalx or in other third-party repositories.
 >
@@ -213,23 +213,25 @@ The image's entrypoint is configured to support passing down all management comm
 
 - [Management commands — pretalx documentation](https://docs.pretalx.org/administrator/commands/)
 
-They can be used from within a running `app` container with directly calling the `pretalx` module with `python` and passing the name of the task, here `showmigrations` for example:
+They can be executed from within a running `app` container with `python` calling the `pretalx` module and passing the name of the task as an argument, in this example `showmigrations`:
 
 ```sh
 docker compose exec app python -m pretalx showmigrations
 ```
 
-This does not need to have the `-f compose.{build.,local.,plugins.,traefik.}yml` overlays present, which don't affect the `exec` function.
+This command does not need to have the `-f compose.{build.,local.,plugins.,traefik.}yml` arguments for defining overlays present, as it only modifies runtime state of an already existing container.
 
 ## Initialisation
 
-You can start configuring your instance, when your `web` container shows as `healthy` in `podman ps`. If you were locally developing this Compose manifest and the associated Container images for a Pretalx deployment with plugins, your initialisation command reads:
+You can start configuring your instance, when your `web` container shows as `healthy` in `podman ps`.
+
+Invoke the initialisation command:
 
 ```sh
 docker compose exec app python -m pretalx init
 ```
 
-Please adapt it to your use case by adding or removing `-f` arguments. You will see this configuration summary and the initialisation wizard:
+You will see this configuration summary and the initialisation wizard:
 
 ```console
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -249,11 +251,11 @@ Let's get you a user with the right to create new events and access every event 
 E-mail:
 ```
 
-After finishing the questionnaire, you can login at http://localhost:8080/orga/.
+After finishing the questionnaire, you can login at [`http://localhost:8080/orga/`](http://localhost:8080/orga/).
 
-> One of the first steps may very well be to disable telemetry and update notifications, when wanting to watch this from the outside perspective of tagged Container images.
+> One of your first steps may very well be to disable telemetry and update notifications, when wanting to maintain versions from the "outside" perspective of tagged Container images.
 
-As you can see, we are not using a settings file. This is not needed, due to following the dot env pattern for [12factor.net](https://12factor.net) cloud-native applications. An example for `pretalx.cfg` and how to add it to the containers is available in this repository, in case needed.
+As you can see, we are not using a settings file. This is not needed, due to following the dot env pattern for [12factor.net](https://12factor.net) container-native applications. An example for `pretalx.cfg` and how to add it to the containers is available in `compose.local.yml` and in the `config/` subdirectory, in case needed.
 
 ## Recycle
 
