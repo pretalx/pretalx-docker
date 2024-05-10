@@ -1,13 +1,11 @@
 name: Docker
 
 on:
-  workflow_dispatch: # Allow manual run
   push:
-    tags:
-      - '*'
-  pull_request:
-    branches:
-      - 'main'
+    branches: ['main']
+  release:
+    types: [published]
+  workflow_dispatch: # Allow manual run
 
 jobs:
   build_and_push:
