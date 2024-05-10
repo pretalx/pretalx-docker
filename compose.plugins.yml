@@ -6,9 +6,6 @@ services:
       args:
         PRETALX_IMAGE: ${PRETALX_IMAGE}
         PRETALX_TAG: ${PRETALX_TAG}
-#    volumes:
-#      - ./context/plugins-default/entrypoint.sh:/pretalx/entrypoint.sh:z
-#      - ./config/pretalx.cfg:/pretalx/.pretalx.cfg:z
   worker: *plugins-default
   cron: *plugins-default
   migrations: *plugins-default
