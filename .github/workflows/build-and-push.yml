@@ -1,0 +1,162 @@
+name: Build/Push OCI image
+
+on:
+  workflow_call:
+    inputs:
+
+      ref:
+        description: "Reference for a git object to check out, string"
+        required: false
+        type: string
+        default: ${{ github.ref }}
+
+
+      platforms:
+        description: "Mandatory comma-separated list of CPU platforms to build for, string"
+        required: false
+        type: string
+        default: linux/amd64,linux/arm64
+      image-name:
+        description: "Mandatory name of the image to build, string"
+        required: true
+        type: string
+        default: ${{ github.event.repository.name }}
+
+
+      build-args:
+        description: "Optional build arguments, takes a YAML multiline string | with ENV=variables"
+        type: string
+        required: false
+        default: ""
+      image-tags:
+        description: "Optional additional image tags, takes a YAML multiline string |"
+        type: string
+        required: false
+        default: ""
+      context:
+        description: "Optional build context, defaults to the ref that triggered the run, and not ./ in the checkout root, string"
+        type: string
+        required: false
+        default: "."
+      file:
+        description: "Optional path to a Dockerfile to build, relative to the build context, string"
+        type: string
+        required: false
+        default: Dockerfile
+
+
+      docker_io:
+        description: "Optional toggle for disabling Docker Hub Registry, boolean"
+        type: boolean
+        required: false
+        default: true
+      ghcr_io:
+        description: "Optional toggle for disabling GitHub Container Registry, boolean"
+        type: boolean
+        required: false
+        default: true
+
+    outputs:
+      imageid:
+        description: "Image ID, String"
+        value: ${{ jobs.build-and-push.outputs.imageid }}
+      digest:
+        description: "Image digest, String"
+        value: ${{ jobs.build-and-push.outputs.digest }}
+      metadata:
+        description: "Build result metadata, JSON"
+        value: ${{ jobs.build-and-push.outputs.metadata }}
+
+
+jobs:
+
+  build-and-push:
+
+    name: Build/Push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+
+    outputs:
+      imageid:  ${{ steps.build-push.outputs.imageid }}
+      digest:   ${{ steps.build-push.outputs.digest }}
+      metadata: ${{ steps.build-push.outputs.metadata }}
+
+    env:
+      docker_io: ${{ inputs.docker_io && secrets.DOCKER_USERNAME != null && secrets.DOCKER_PASSWORD != null }}
+
+    steps:
+
+    -
+      name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    -
+      name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        context: git
+        images: |
+          name=ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }},enable=${{ inputs.ghcr_io }}
+          name=docker.io/${{ github.repository_owner }}/${{ inputs.image-name }},enable=${{ env.docker_io }}
+        labels: |
+          org.opencontainers.image.title=${{ inputs.image-name }}
+          org.opencontainers.image.vendor=Pretalx Community
+          org.opencontainers.image.description=An unprivileged Pretalx container image for use with the PostgreSQL database and prepared to be used with cron.
+          org.opencontainers.image.licenses=CC0
+
+        tags: |
+          type=semver,pattern={{ version }}
+          type=semver,pattern={{ major }}.{{ minor }}
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
+          {{ sha }}
+          ${{ inputs.image-tags }}
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    -
+      name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+
+    -
+      name: Login to Docker Hub Registry
+      uses: docker/login-action@v3
+      if: github.event_name != 'pull_request' && env.docker_io == 'true'
+      with:
+        registry: "docker.io"
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    -
+      name: Login to GitHub Packages Registry
+      uses: docker/login-action@v3
+      if: github.event_name != 'pull_request' && inputs.ghcr_io
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+    -
+      name: Build and push Container image
+      uses: docker/build-push-action@v5
+      id: build-push
+      with:
+        push:       "${{ github.event_name != 'pull_request' }}"
+        provenance: false
+        platforms:  "${{ inputs.platforms }}"
+        context:    "{{ defaultContext }}:${{ inputs.context }}"
+        file:       "${{ inputs.file }}"
+        build-args: "${{ inputs.build-args }}"
+        tags:       "${{ steps.meta.outputs.tags }}"
+        labels:     "${{ steps.meta.outputs.labels }}"
