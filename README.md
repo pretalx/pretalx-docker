@@ -5,6 +5,33 @@ This repository contains a Container image and a Docker Compose setup for a
 
 > **Please note that this repository is provided by the pretalx community, and not supported by the pretalx team.**
 
+## Contents
+
+<!-- TOC -->
+
+- [pretalx-docker](#pretalx-docker)
+  - [Contents](#contents)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Build](#build)
+    - [CI](#ci)
+    - [Setting up the build environment](#setting-up-the-build-environment)
+    - [Local building of the Container image and the Compose manifest](#local-building-of-the-container-image-and-the-compose-manifest)
+    - [Live deployment](#live-deployment)
+    - [Local live-like deployment](#local-live-like-deployment)
+    - [With plugins](#with-plugins)
+  - [Run](#run)
+    - [Locally](#locally)
+    - [Live](#live)
+    - [Management commands](#management-commands)
+  - [Initialisation](#initialisation)
+  - [Recycle](#recycle)
+  - [Authors](#authors)
+  - [License](#license)
+  - [Copyright](#copyright)
+
+<!-- /TOC -->
+
 ## Installation
 
 This repository follows the Pretalx installation instructions as closely as possible.
@@ -203,13 +230,23 @@ docker compose -f compose.yml -f compose.plugins.yml up -d
 
 - *Continue* to **Initialisation** below.
 
+> See [#59](https://github.com/pretalx/pretalx-docker/issues/59) for a known regression with pulling Pretalx images with Podman from Docker Hub.
+>
 > A default blend of plugins can be provided in another image for distribution and could be built automatically here @pretalx or in other third-party repositories.
 >
 > This would allow to provide an alternative Compose overlay that does not need to build the images with plugins, but reuses some which are already published.
 
 ### Management commands
 
-The image's entrypoint is configured to support passing down all management commands to Pretalx.
+The [entrypoint](./context/default/entrypoint.sh) provides convenience commands to run the Container with different processes in the same environment from within the same Image.
+
+- `migrate` launches the database migrations and initiates a `rebuild`.
+- `rebuild` regenerates static Django assets in `$PRETALX_FILESYSTEM_STATIC`, but only once. Can be `--force`d.
+- `gunicorn` launches the Gunicorn Python web server to serve Pretalx. Can be configured with the `GUNICORN_*` environmental variables mentioned above.
+- `celery` launches the Celery task worker.
+- `cron` launches the Cron daemon to schedule the commands in the [`context/default/crontab`](./context/default/crontab)
+
+All other commands are passed down to Pretalx.
 
 - [Management commands — pretalx documentation](https://docs.pretalx.org/administrator/commands/)
 
