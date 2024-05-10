@@ -17,9 +17,6 @@ on:
       - .github/workflows/build.plugins.yml
       - context/plugins
 
-  release:
-    types: [published]
-
   workflow_call:
     inputs:
       ref:
@@ -53,7 +50,7 @@ jobs:
       file: Dockerfile.debian
       build-args: |
         BASE_IMAGE=ghcr.io/allmende/pretalx
-        BASE_TAG=next
+        BASE_TAG=latest
     secrets: inherit
   call-build-and-push-ref:
     name: Call tagged image build
@@ -67,5 +64,5 @@ jobs:
       ref: ${{ inputs.ref }}
       build-args: |
         BASE_IMAGE=ghcr.io/allmende/pretalx
-        BASE_TAG=next
+        BASE_TAG=latest
     secrets: inherit
