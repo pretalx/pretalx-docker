@@ -22,6 +22,7 @@ This repository contains a Container image and a Docker Compose setup for a
   - [Management commands](#management-commands)
 - [Initialisation](#initialisation)
 - [Recycle](#recycle)
+- [Legacy](#legacy)
 - [Authors](#authors)
 - [License](#license)
 - [Copyright](#copyright)
@@ -313,6 +314,13 @@ Remove `.env` when you need to reset the whole setup completely.
 docker compose down -v --remove-orphans
 rm .env
 ```
+
+## Legacy
+
+The repository contains an example configuration for supporting the legacy version of Docker Compose.
+Due to the different feature set, an independent manifest is used.
+
+Please refer to [`compose/docker-compose.README.md`](./compose/docker-compose.README.md) to learn more.
 
 ## Authors
 
