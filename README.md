@@ -271,7 +271,7 @@ You will see this configuration summary and the initialisation wizard:
 ┃ ┃  ┌─·──╮  ┃  Settings:                                                         ┃
 ┃ ┃  │  O │  ┃  Database:  pretalx (postgresql)                                   ┃
 ┃ ┃  │ ┌──╯  ┃  Logging:   /data/logs                                             ┃
-┃ ┃  └─┘     ┃  Root dir:  /pretalx/.local/lib/python3.10/site-packages/pretalx   ┃
+┃ ┃  └─┘     ┃  Root dir:  /pretalx/.local/lib/python3.12/site-packages/pretalx   ┃
 ┃ ┗━━━┯━┯━━━━┛  Python:    /usr/local/bin/python                                  ┃
 ┃     ╰─╯       Plugins:   pretalx_pages, pretalx_public_voting, prtx_faq         ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
