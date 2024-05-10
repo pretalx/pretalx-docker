@@ -1,0 +1,91 @@
+name: Pretalx OCI image
+
+on:
+  pull_request:
+    branches:
+      - main
+      - next
+  push:
+    branches:
+      - next
+
+  release:
+    types: [published]
+
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+        default: ${{ github.ref }}
+      base-image:
+        required: false
+        type: string
+        default: "docker.io/library/python"
+      base-tag:
+        required: false
+        type: string
+        default: "3.12-bookworm"
+      version:
+        required: false
+        type: string
+        default: "2024.1.0"
+      platforms:
+        required: false
+        type: string
+        default: "linux/amd64"
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: false
+        type: string
+      base-image:
+        required: false
+        type: string
+        default: "docker.io/library/python"
+      base-tag:
+        required: false
+        type: string
+        default: "3.12-bookworm"
+      version:
+        required: false
+        type: string
+        default: "2024.1.0"
+      platforms:
+        required: false
+        type: string
+        default: "linux/amd64"
+
+
+jobs:
+
+  call-build-and-push:
+    name: Call image build
+    uses: ./.github/workflows/build-and-push.yml
+    if: ( inputs.ref == 0 )
+    with:
+      image-name: pretalx
+      platforms: ${{ inputs.platforms }}
+      context: ./context/default
+      file: Dockerfile.debian
+      build-args: |
+        BASE_IMAGE=${{ inputs.base-image }}
+        BASE_TAG=${{ inputs.base-tag }}
+        PRETALX_VERSION=${{ inputs.version }}
+    secrets: inherit
+  call-build-and-push-ref:
+    name: Call tagged image build
+    uses: ./.github/workflows/build-and-push.yml
+    if: ( inputs.ref != 0 )
+    with:
+      image-name: pretalx
+      platforms: ${{ inputs.platforms }}
+      context: ./context/default
+      file: Dockerfile.debian
+      ref: ${{ inputs.ref }}
+      build-args: |
+        BASE_IMAGE=${{ inputs.base-image }}
+        BASE_TAG=${{ inputs.base-tag }}
+        PRETALX_VERSION=${{ inputs.version }}
+    secrets: inherit
