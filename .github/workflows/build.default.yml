@@ -5,9 +5,17 @@ on:
     branches:
       - main
       - next
+    paths:
+      - .github/workflows/build-and-push.yml
+      - .github/workflows/build.default.yml
+      - context/default
   push:
     branches:
       - next
+    paths:
+      - .github/workflows/build-and-push.yml
+      - .github/workflows/build.default.yml
+      - context/default
 
   release:
     types: [published]
