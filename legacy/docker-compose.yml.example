@@ -49,8 +49,8 @@ services:
     build:
       context: ./context/plugins
       args:
-        PRETALX_IMAGE: ${PRETALX_IMAGE}
-        PRETALX_TAG: ${PRETALX_TAG}
+        BASE_IMAGE: ${PRETALX_IMAGE}
+        BASE_TAG: ${PRETALX_TAG}
     command: gunicorn
     restart: unless-stopped
 
@@ -88,8 +88,8 @@ services:
     build:
       context: ./context/plugins
       args:
-        PRETALX_IMAGE: ${PRETALX_IMAGE}
-        PRETALX_TAG: ${PRETALX_TAG}
+        BASE_IMAGE: ${PRETALX_IMAGE}
+        BASE_TAG: ${PRETALX_TAG}
     command: celery
     restart: unless-stopped
 
@@ -127,8 +127,8 @@ services:
     build:
       context: ./context/plugins
       args:
-        PRETALX_IMAGE: ${PRETALX_IMAGE}
-        PRETALX_TAG: ${PRETALX_TAG}
+        BASE_IMAGE: ${PRETALX_IMAGE}
+        BASE_TAG: ${PRETALX_TAG}
     command: cron
     user: root
     init: true
@@ -164,8 +164,8 @@ services:
     build:
       context: ./context/plugins
       args:
-        PRETALX_IMAGE: ${PRETALX_IMAGE}
-        PRETALX_TAG: ${PRETALX_TAG}
+        BASE_IMAGE: ${PRETALX_IMAGE}
+        BASE_TAG: ${PRETALX_TAG}
     command: migrate
     restart: "no"
 
