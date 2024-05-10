@@ -3,34 +3,28 @@
 This repository contains a Container image and a Docker Compose setup for a
 [pretalx](https://github.com/pretalx/pretalx) installation.
 
-> **Please note that this repository is provided by the pretalx community, and not supported by the pretalx team.**
+> **Please note that the repository is provided by the pretalx community and not officially supported.**
 
 ## Contents
 
-<!-- TOC -->
-
-- [pretalx-docker](#pretalx-docker)
-  - [Contents](#contents)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-  - [Build](#build)
-    - [CI](#ci)
-    - [Setting up the build environment](#setting-up-the-build-environment)
-    - [Local building of the Container image and the Compose manifest](#local-building-of-the-container-image-and-the-compose-manifest)
-    - [Live deployment](#live-deployment)
-    - [Local live-like deployment](#local-live-like-deployment)
-    - [With plugins](#with-plugins)
-  - [Run](#run)
-    - [Locally](#locally)
-    - [Live](#live)
-    - [Management commands](#management-commands)
-  - [Initialisation](#initialisation)
-  - [Recycle](#recycle)
-  - [Authors](#authors)
-  - [License](#license)
-  - [Copyright](#copyright)
-
-<!-- /TOC -->
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Build](#build)
+  - [CI](#ci)
+  - [Setting up the build environment](#setting-up-the-build-environment)
+  - [Local building of the Container image and the Compose manifest](#local-building-of-the-container-image-and-the-compose-manifest)
+  - [Live deployment](#live-deployment)
+  - [Local live-like deployment](#local-live-like-deployment)
+  - [With plugins](#with-plugins)
+- [Run](#run)
+  - [Locally](#locally)
+  - [Live](#live)
+  - [Management commands](#management-commands)
+- [Initialisation](#initialisation)
+- [Recycle](#recycle)
+- [Authors](#authors)
+- [License](#license)
+- [Copyright](#copyright)
 
 ## Installation
 
@@ -174,9 +168,9 @@ Or in a live environment:
 docker compose -f compose.yml -f compose.traefik.yml -f compose.plugins.yml config
 ```
 
-All Compose commands apply from here.
+All Compose commands in place of `config` apply from here.
 
-If you had successfully built your local Pretalx image, you could build the plugin images with:
+If you had successfully built your local Pretalx image, you could build an image with the plugins with:
 
 ```sh
 bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --build-arg PRETALX_TAG=${PRETALX_TAG} -t pretalx-${FQDN} context/plugins'
@@ -225,7 +219,7 @@ docker compose -f compose.yml -f compose.local.yml -f compose.plugins.yml up -d
 To run this in a live environment, it is not needed to build the images locally. They will be provided by Docker Hub.
 
 ```sh
-docker compose -f compose.yml -f compose.plugins.yml up -d
+docker compose -f compose.yml -f compose.traefik.yml -f compose.plugins.yml up -d
 ```
 
 - *Continue* to **Initialisation** below.
@@ -238,13 +232,14 @@ docker compose -f compose.yml -f compose.plugins.yml up -d
 
 ### Management commands
 
-The [entrypoint](./context/default/entrypoint.sh) provides convenience commands to run the Container with different processes in the same environment from within the same Image.
+The [entrypoint](./context/default/entrypoint.sh) provides convenience commands to run the Container with different processes from the same image in the same environment.
 
 - `migrate` launches the database migrations and initiates a `rebuild`.
 - `rebuild` regenerates static Django assets in `$PRETALX_FILESYSTEM_STATIC`, but only once. Can be `--force`d.
-- `gunicorn` launches the Gunicorn Python web server to serve Pretalx. Can be configured with the `GUNICORN_*` environmental variables mentioned above.
+- `gunicorn` launches the Gunicorn Python web server to serve Pretalx.
+  Can be configured with the `GUNICORN_*` environmental variables mentioned above.
 - `celery` launches the Celery task worker.
-- `cron` launches the Cron daemon to schedule the commands in the [`context/default/crontab`](./context/default/crontab)
+- `cron` launches the Cron daemon to schedule the commands in the [`context/default/crontab`](./context/default/crontab).
 
 All other commands are passed down to Pretalx.
 
