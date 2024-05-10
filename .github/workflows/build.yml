@@ -1,16 +1,19 @@
-name: Docker
+name: Build/Push OCI image
 
 on:
   workflow_dispatch: # Allow manual run
-  push:
-    tags:
-      - '*'
   pull_request:
     branches:
-      - 'main'
+      - main
+      - next
+  push:
+    branches:
+      - next
+  release:
+    types: [published]
 
 jobs:
-  build_and_push:
+  build_push:
     name: Build and push Docker image to Docker Hub or GHCR
     runs-on: ubuntu-latest
     env:
