@@ -7,8 +7,8 @@ on:
       ref:
         description: "Reference for a git object to check out, string"
         required: false
-        default: ${{ github.ref }}
         type: string
+        default: ${{ github.ref }}
 
 
       platforms:
@@ -25,33 +25,36 @@ on:
 
       build-args:
         description: "Optional build arguments, takes a YAML multiline string | with ENV=variables"
-        required: false
         type: string
+        required: false
+        default: ""
       image-tags:
         description: "Optional additional image tags, takes a YAML multiline string |"
-        required: false
         type: string
+        required: false
+        default: ""
       context:
         description: "Optional build context, defaults to the ref that triggered the run, and not ./ in the checkout root, string"
-        required: false
         type: string
-        default: .
+        required: false
+        default: "."
       file:
         description: "Optional path to a Dockerfile to build, relative to the build context, string"
-        required: false
         type: string
+        required: false
+        default: Dockerfile
 
 
       docker_io:
         description: "Optional toggle for disabling Docker Hub Registry, boolean"
-        default: true
-        required: false
         type: boolean
+        required: false
+        default: true
       ghcr_io:
         description: "Optional toggle for disabling GitHub Container Registry, boolean"
-        default: true
-        required: false
         type: boolean
+        required: false
+        default: true
 
     outputs:
       imageid:
@@ -95,7 +98,7 @@ jobs:
     -
       name: Docker meta
       id: meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         context: git
         images: |
@@ -108,11 +111,11 @@ jobs:
           org.opencontainers.image.licenses=CC0
 
         tags: |
-          latest
-          type=semver,pattern={{version}}
-          {{ tag }}
-          {{ base_ref }}
-          {{ branch }}
+          type=semver,pattern={{ version }}
+          type=semver,pattern={{ major }}.{{ minor }}
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
           {{ sha }}
           ${{ inputs.image-tags }}
 
@@ -152,7 +155,7 @@ jobs:
         push:       "${{ github.event_name != 'pull_request' }}"
         provenance: false
         platforms:  "${{ inputs.platforms }}"
-        context:    "${{ inputs.context }}"
+        context:    "{{ defaultContext }}:${{ inputs.context }}"
         file:       "${{ inputs.file }}"
         build-args: "${{ inputs.build-args }}"
         tags:       "${{ steps.meta.outputs.tags }}"
