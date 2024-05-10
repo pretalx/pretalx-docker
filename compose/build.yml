@@ -1,6 +1,8 @@
 services:
   app: &build-default
-    build: ./context/default
+    build:
+      context: ./context/default
+      dockerfile: Dockerfile.debian
   worker: *build-default
   cron: *build-default
   migrations: *build-default

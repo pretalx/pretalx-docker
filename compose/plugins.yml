@@ -3,6 +3,7 @@ services:
     image: pretalx-${FQDN}
     build:
       context: ./context/plugins
+      dockerfile: Dockerfile.debian
       args:
         BASE_IMAGE: ${PRETALX_IMAGE}
         BASE_TAG: ${PRETALX_TAG}

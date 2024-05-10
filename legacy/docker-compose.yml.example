@@ -44,13 +44,13 @@ services:
 
 
   app:
-#    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-    image: pretalx-${FQDN}
-    build:
-      context: ./context/plugins
-      args:
-        BASE_IMAGE: ${PRETALX_IMAGE}
-        BASE_TAG: ${PRETALX_TAG}
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+#    image: pretalx-${FQDN}
+#    build:
+#      context: ./context/plugins
+#      args:
+#        BASE_IMAGE: ${PRETALX_IMAGE}
+#        BASE_TAG: ${PRETALX_TAG}
     command: gunicorn
     restart: unless-stopped
 
@@ -83,13 +83,13 @@ services:
       PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
 
   worker:
-#    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-    image: pretalx-${FQDN}
-    build:
-      context: ./context/plugins
-      args:
-        BASE_IMAGE: ${PRETALX_IMAGE}
-        BASE_TAG: ${PRETALX_TAG}
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+#    image: pretalx-${FQDN}
+#    build:
+#      context: ./context/plugins
+#      args:
+#        BASE_IMAGE: ${PRETALX_IMAGE}
+#        BASE_TAG: ${PRETALX_TAG}
     command: celery
     restart: unless-stopped
 
@@ -122,13 +122,13 @@ services:
       PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
 
   cron:
-#    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-    image: pretalx-${FQDN}
-    build:
-      context: ./context/plugins
-      args:
-        BASE_IMAGE: ${PRETALX_IMAGE}
-        BASE_TAG: ${PRETALX_TAG}
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+#    image: pretalx-${FQDN}
+#    build:
+#      context: ./context/plugins
+#      args:
+#        BASE_IMAGE: ${PRETALX_IMAGE}
+#        BASE_TAG: ${PRETALX_TAG}
     command: cron
     user: root
     init: true
@@ -159,13 +159,13 @@ services:
       PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
 
   migrations:
-#    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-    image: pretalx-${FQDN}
-    build:
-      context: ./context/plugins
-      args:
-        BASE_IMAGE: ${PRETALX_IMAGE}
-        BASE_TAG: ${PRETALX_TAG}
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+#    image: pretalx-${FQDN}
+#    build:
+#      context: ./context/plugins
+#      args:
+#        BASE_IMAGE: ${PRETALX_IMAGE}
+#        BASE_TAG: ${PRETALX_TAG}
     command: migrate
     restart: "no"
 

@@ -79,9 +79,20 @@ This repository is used for building Container images from the source manifests 
 
 ### CI
 
-We provide a CI manifest to build and push container images to Docker Hub (`docker.io`) and to the GitHub Container Registry (`ghcr.io`).
+We provide CI manifests to build and push container images to Docker Hub (`docker.io`) and to the GitHub Container Registry (`ghcr.io`).
 
-Find it in [`.github/workflows/build.yml`](.github/workflows/build.yml).
+Find them in [`.github/workflows/`](.github/workflows/).
+
+- `build-and-push.yml`, a generic build and push workflow that is called by other workflows and releases artifacts into Docker Hub and the GitHub Container Registry.
+- `build.default.yml`, builds the `default` context into a `pretalx` image.
+- `build.plugins.yml`, builds the `plugins` context into a `pretalx-extended` image.
+
+The artifacts can be retrieved from:
+
+- [pretalx/pretalx Tags | Docker Hub](https://hub.docker.com/r/pretalx/pretalx/tags)
+- [pretalx/pretalx-extended Tags | Docker Hub](https://hub.docker.com/r/pretalx/pretalx-extended/tags)
+- [pretalx versions · pretalx · GHCR](https://github.com/pretalx/pretalx-docker/pkgs/container/pretalx/versions)
+- [pretalx-extended versions · pretalx · GHCR](https://github.com/pretalx/pretalx-docker/pkgs/container/pretalx-extended/versions)
 
 ### Setting up the build environment
 
