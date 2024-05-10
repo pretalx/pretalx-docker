@@ -1,7 +1,7 @@
-ARG PRETALX_IMAGE=docker.io/library/pretalx/pretalx
-ARG PRETALX_TAG=latest
+ARG BASE_IMAGE=docker.io/library/pretalx/pretalx
+ARG BASE_TAG=latest
 
-FROM ${PRETALX_IMAGE}:${PRETALX_TAG}
+FROM ${BASE_IMAGE}:${BASE_TAG}
 
 RUN pip3 install -U prtx-faq \
                     pretalx-pages \
