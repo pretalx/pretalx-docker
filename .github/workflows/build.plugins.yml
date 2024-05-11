@@ -49,7 +49,7 @@ jobs:
       context: ./context/plugins
       file: Dockerfile.debian
       build-args: |
-        BASE_IMAGE=ghcr.io/allmende/pretalx
+        BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/pretalx
         BASE_TAG=latest
     secrets: inherit
   call-build-and-push-ref:
@@ -63,6 +63,6 @@ jobs:
       file: Dockerfile.debian
       ref: ${{ inputs.ref }}
       build-args: |
-        BASE_IMAGE=ghcr.io/allmende/pretalx
+        BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/pretalx
         BASE_TAG=latest
     secrets: inherit
