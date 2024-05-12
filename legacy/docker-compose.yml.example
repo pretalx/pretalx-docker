@@ -45,12 +45,6 @@ services:
 
   app:
     image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-#    image: pretalx-${FQDN}
-#    build:
-#      context: ./context/plugins
-#      args:
-#        BASE_IMAGE: ${PRETALX_IMAGE}
-#        BASE_TAG: ${PRETALX_TAG}
     command: gunicorn
     restart: unless-stopped
 
@@ -84,12 +78,6 @@ services:
 
   worker:
     image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-#    image: pretalx-${FQDN}
-#    build:
-#      context: ./context/plugins
-#      args:
-#        BASE_IMAGE: ${PRETALX_IMAGE}
-#        BASE_TAG: ${PRETALX_TAG}
     command: celery
     restart: unless-stopped
 
@@ -123,12 +111,6 @@ services:
 
   cron:
     image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-#    image: pretalx-${FQDN}
-#    build:
-#      context: ./context/plugins
-#      args:
-#        BASE_IMAGE: ${PRETALX_IMAGE}
-#        BASE_TAG: ${PRETALX_TAG}
     command: cron
     user: root
     init: true
@@ -140,37 +122,6 @@ services:
       interval: 30s
       retries: 5
       timeout: 3s
-
-    depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-
-    networks:
-      - data
-    volumes:
-      - ${PRETALX_VOLUME_DATA}:/data
-      - ${PRETALX_VOLUME_PUBLIC}:/public
-    env_file: [".env.pretalx"]
-    environment:
-      PRETALX_DB_NAME: ${POSTGRES_DB}
-      PRETALX_DB_USER: ${POSTGRES_USER}
-      PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
-
-  migrations:
-    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
-#    image: pretalx-${FQDN}
-#    build:
-#      context: ./context/plugins
-#      args:
-#        BASE_IMAGE: ${PRETALX_IMAGE}
-#        BASE_TAG: ${PRETALX_TAG}
-    command: migrate
-    restart: "no"
-
-    deploy:
-      replicas: 0
 
     depends_on:
       redis:

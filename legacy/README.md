@@ -75,17 +75,26 @@ Rootful Docker cannot perform subuid/-gid mapping.
 
 ## Build
 
-This setup is using a custom build with selected plugins, which are defined in the [`context/plugins/Dockerfile`](./context/plugins/Dockerfile).
+This setup is prepared to perform a custom build with a selection of plugins, which are defined in the [`context/plugins/Dockerfile`](./context/plugins/Dockerfile).
 
-Prepare the application image:
+In case you wish to perform such a custom build, prepare the application image:
 
 ```sh
-docker-compose build app
+cp legacy/docker-compose.build.yml.example build.yml
+docker-compose -f docker-compose.yml -f build.yml build app
 ```
 
 ## First run
 
-Due to missing exit code evaluation of service dependencies, we need a more cautious approach to applying state to the containers.
+Before running the application, check your `.env` and `.env.pretalx` files again. For example, you may want to replace the `pretalx/pretalx` image with `pretalx/pretalx-extended`, if you wanted to use one with plugins. When the files look good, prepare your Container engine with pulling the used images:
+
+```sh
+docker-compose pull
+```
+
+Skip this step for custom builds.
+
+Due to missing exit code evaluation of service dependencies in the legacy Docker Compose, we need a more manual approach to applying state to the containers, as with the non-legacy setup.
 
 Begin with initialising the databases:
 
@@ -93,10 +102,10 @@ Begin with initialising the databases:
 docker-compose up -d postgres redis
 ```
 
-Run the database migrations and implied build of static assets, if applicable:
+Run the database migrations and implied build of static assets manually:
 
 ```sh
-docker-compose run --rm migrations
+docker-compose run --rm app migrate
 ```
 
 This is needed, since missing static assets will lead to errors when starting the other application containers.
