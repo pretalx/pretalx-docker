@@ -175,7 +175,7 @@ sed '/selinux/d' -i compose.yml
 
 We are making good use of [YAML Fragments in the Compose files](https://docs.docker.com/compose/compose-file/10-fragments/).
 
-> Feel free to adapt these examples to your liking. E.g. you may need to copy and paste the adaptations into the single manifest, e.g. to run without `-f` modifiers, or have the main file called `docker-compose.yml` for the ancient version of `docker-compose`.
+> Feel free to adapt these examples to your liking. E.g. you may need to copy and paste the adaptations into the single manifest, e.g. to run without `-f` modifiers, or have the main file called `docker-compose.yml` for the ancient version of `docker-compose`. See the *legacy* section for this use case.
 
 ### Local building of the Container image and the Compose manifest
 
