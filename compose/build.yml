@@ -3,6 +3,10 @@ services:
     build:
       context: ./context/default
       dockerfile: Dockerfile.debian
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
+        BASE_TAG: ${BASE_TAG}
+        PRETALX_VERSION: ${PRETALX_VERSION}
   worker: *build-default
   cron: *build-default
   migrations: *build-default

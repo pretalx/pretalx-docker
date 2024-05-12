@@ -7,6 +7,7 @@ This repository contains a Container image and a Docker Compose setup for a
 
 ## Contents
 
+- [Components](#components)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Build](#build)
@@ -27,6 +28,41 @@ This repository contains a Container image and a Docker Compose setup for a
 - [License](#license)
 - [Copyright](#copyright)
 
+## Components
+
+The repository holds the following usable components:
+
+- `.env.example`, example environment
+- `compose.yml`, Compose manifest
+- `.github/`, GitHub-specific contents
+  - `workflows/`, GitHub Actions workflows
+    - `build-and-push.yml`, parametrised build workflow to be called by other workflows
+    - `build.default.yml`, build workflow that builds the `default` context
+    - `build.plugins.yml`, build workflow that builds the `plugins` context
+  - `dependabot.yml`, configuration to automatically update dependencies
+- `compose/`, Compose overlays, to be used as additional `-f` flags
+  - `build.yml`, overlay to build the image from the `default` context
+  - `local.yml`, overlay to add a local listening port for the `web` container
+  - `plugins.yml`, overlay to build the image from the `plugins` context
+  - `traefik.yml`, overlay to add the Traefik-specific external `web` network and associated configuration labels
+- `config/`, runtime configuration files
+  - `nginx.conf`, configuration for Nginx that serves static assets and otherwise proxies to the application container
+  - `pretalx.cfg.example`, depreciated, example of a configuration file to be used with the `local` overlay
+- `context/`, Container image build contexts
+  - `default/`, build context for the stock Pretalx image
+    - `crontab`, configuration to run periodic tasks
+    - `Dockerfile.debian`, Debian-based container image manifest for Pretalx
+    - `entrypoint.sh`, script to be evaluated at runtime when the container starts, expect an argument
+  - `plugins/`, build context for a Pretalx image preloaded with plugins
+    - `Dockerfile.debian`, container image manifest that adds plugins to Pretalx
+- `legacy/`, support for the legacy Python version of `docker-compose`
+  - `docker-compose.build.yml.example`, overlay example to build an `-extended` image from the `plugins` context
+  - `docker-compose.env.example`, Compose, Traefik and Postgres environment example
+  - `docker-compose.env.pretalx.example`, Pretalx environment example
+  - `docker-compose.yml.example`, Docker Compose manifest example
+
+Please read on thorugh the following sections to find out how they interact with each other.
+
 ## Installation
 
 This repository follows the Pretalx installation instructions as closely as possible.
@@ -37,27 +73,42 @@ This repository follows the Pretalx installation instructions as closely as poss
 
 The repository implements the dot env pattern to configure all application containers through environmental variables.
 
-The setup prepares all environmental variables supported by Pretalx:
-
-- [Configuration — pretalx documentation](https://docs.pretalx.org/administrator/configure/)
-
 Copy the example and modify it according to your setup:
 
 ```sh
 cp .env.example .env
 ```
 
-You will likely want to provide email settings to a live environment.
+The Pretalx image and version to pull or build are indicated at the top:
 
-Additional variables were introduced to configure the web proxy, the containers, the image build and the database:
+- `PRETALX_IMAGE`, Pretalx Container image name
+- `PRETALX_TAG`, Pretalx Container image tag
+
+### Build-time variables
+
+Certain variables are only used in case of launching the image build stage:
+
+- `PRETALX_VERSION`, the Pretalx version to install into the image
+- `BASE_IMAGE`, the base image to build from
+- `BASE_TAG`, the base image tag to build from
+
+They are included to allow developing the Pretalx image against a live-like environment with all auxiliary services present.
+
+### Run-time variables
+
+The setup uses all environmental variables used by Pretalx:
+
+- [Configuration — pretalx documentation](https://docs.pretalx.org/administrator/configure/)
+
+You will likely want to uncomment and provide email settings to a live environment.
+
+These variables configure the web proxy, the application processes and the database:
 
 - `FQDN`, fully-qualified domain name, used for the `Host` matcher in the `traefik` configuration and for the `plugins` images
 - `POSTGRES_DB`, Postgres database name
 - `POSTGRES_USER`, Postgres user name
 - `POSTGRES_PASSWORD`, Postgres user password
 - `PRETALX_LOG_LEVEL`, Gunicorn and Celery log level
-- `PRETALX_IMAGE`, Pretalx Container image name
-- `PRETALX_TAG`, Pretalx Container image tag
 
 The following variables are available to configure the Gunicorn web process:
 
@@ -71,7 +122,7 @@ Please refer to [`context/default/entrypoint.sh`](./context/default/entrypoint.s
 
 ## Build
 
-This repository is used for building Container images from the source manifests present here.
+This repository is used for developing Container images from the source manifests present in the `context/` directory.
 
 > It does not cover the use case of building a Pretalx development environment.
 >
@@ -94,9 +145,13 @@ The artifacts can be retrieved from:
 - [pretalx versions · pretalx · GHCR](https://github.com/pretalx/pretalx-docker/pkgs/container/pretalx/versions)
 - [pretalx-extended versions · pretalx · GHCR](https://github.com/pretalx/pretalx-docker/pkgs/container/pretalx-extended/versions)
 
-### Setting up the build environment
+### Setting up a build environment
 
 For educational purposes we implement this with Docker Compose on a Rootless Podman context on a SELinux-enabled Linux host, using the Docker CLI with a context on the local socket of the Podman systemd user unit.
+
+It also works with rootful or rootless Docker and rootful Podman respectively.
+
+<details><summary>How to set up Rootless Podman with Docker Compose via a Docker Context</summary>
 
 - [Using Podman and Docker Compose | Enable Sysadmin](https://www.redhat.com/sysadmin/podman-docker-compose)
 
@@ -110,16 +165,12 @@ default    Current DOCKER_HOST based configuration   unix:///var/run/docker.sock
 podman *                                             unix:///run/user/1000/podman/podman.sock
 ```
 
-If your system does not have SELinux enabled or you wish to use this only with the regular Docker and Compose tooling, remove the SELinux-specific configuration:
+</details>
+
+If your system does not have SELinux enabled or you wish to use this only with the rootful tooling, remove the SELinux-specific configuration:
 
 ```sh
 sed '/selinux/d' -i compose.yml
-```
-
-To speed up builds and to build for the local platform only, you can disable BuildX with:
-
-```sh
-export DOCKER_BUILDKIT=0
 ```
 
 We are making good use of [YAML Fragments in the Compose files](https://docs.docker.com/compose/compose-file/10-fragments/).
@@ -131,7 +182,7 @@ We are making good use of [YAML Fragments in the Compose files](https://docs.doc
 These were the commands frequently used to develop this Compose manifest:
 
 ```sh
-docker build --load -t library/pretalx/pretalx:latest context/default
+docker build --load -t docker.io/pretalx/pretalx:latest context/default
 ```
 
 The previous command is equivalent to:
@@ -142,7 +193,7 @@ docker compose -f compose.yml -f compose/build.yml build app
 
 This will build the image with the name `${PRETALX_IMAGE}:${PRETALX_TAG}`, as specified by the inferred `image:` directive.
 
-If you have chosen not to disable BuildX, you can preview its configuration derieved from the Compose manifests:
+You can preview the build configuration derieved from the Compose manifests:
 
 ```sh
 docker buildx bake -f compose.yml -f compose/build.yml --print
@@ -191,7 +242,8 @@ bash -c 'source .env; docker build --build-arg PRETALX_IMAGE=${PRETALX_IMAGE} --
 The previous command is equivalent to:
 
 ```sh
-docker compose -f compose.yml -f compose/build.yml -f compose/plugins.yml build app
+export DOCKER_BUILDKIT=0
+docker compose -f compose.yml -f compose/plugins.yml build app
 ```
 
 This does not work with BuildX, which for this step must be disabled as shown above, due to known regressions.
@@ -202,10 +254,10 @@ This does not work with BuildX, which for this step must be disabled as shown ab
 
 </details>
 
-Yet you can use it to review the build context:
+Yet you can use BuildX to review the build context:
 
 ```sh
-docker buildx bake -f compose.yml -f compose/build.yml -f compose/plugins.yml --print
+docker buildx bake -f compose.yml -f compose/plugins.yml --print
 ```
 
 ## Run

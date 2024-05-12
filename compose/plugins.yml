@@ -1,6 +1,6 @@
 services:
   app: &plugins-default
-    image: pretalx-${FQDN}
+    image: ${PRETALX_IMAGE}-extended:${PRETALX_TAG}
     build:
       context: ./context/plugins
       dockerfile: Dockerfile.debian
