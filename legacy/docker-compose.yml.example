@@ -1,0 +1,176 @@
+networks:
+  data:
+  web:
+    external: true
+
+services:
+
+  web:
+    image: nginx:alpine
+    restart: unless-stopped
+
+    deploy:
+      replicas: 1
+
+    healthcheck:
+      test: ['CMD-SHELL', 'ash -c "[[ $$(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:80) == \"200\" ]]" || exit 1']
+      start_period: 10s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+    depends_on:
+      app:
+        condition: service_healthy
+
+    networks:
+      - data
+      - web
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${PRETALX_VOLUME_PUBLIC}:/public
+
+    labels:
+      traefik.enable: true
+      traefik.http.routers.fqdn-pretalx-web.entrypoints: web
+      traefik.http.routers.fqdn-pretalx-web.rule: Host(`${FQDN}`)
+      traefik.http.routers.fqdn-pretalx-web.middlewares: http-to-https
+      traefik.http.middlewares.http-to-https.redirectscheme.scheme: https
+      traefik.http.middlewares.http-to-https.redirectscheme.permanent: true
+      traefik.http.routers.fqdn-pretalx-webs.entrypoints: webs
+      traefik.http.routers.fqdn-pretalx-webs.rule: Host(`${FQDN}`)
+      traefik.http.routers.fqdn-pretalx-webs.tls: true
+      traefik.http.routers.fqdn-pretalx-webs.tls.certresolver: letsencrypt
+
+
+  app:
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+    command: gunicorn
+    restart: unless-stopped
+
+    deploy:
+      replicas: 1
+
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "[[ $$(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080) == \"200\" ]]" || exit 1']
+      start_period: 10s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - data
+    volumes:
+      - ${PRETALX_VOLUME_DATA}:/data
+      - ${PRETALX_VOLUME_PUBLIC}:/public
+    env_file: [".env.pretalx"]
+    environment:
+      PRETALX_LOG_LEVEL: ${PRETALX_LOG_LEVEL}
+      PRETALX_DB_NAME: ${POSTGRES_DB}
+      PRETALX_DB_USER: ${POSTGRES_USER}
+      PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
+
+  worker:
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+    command: celery
+    restart: unless-stopped
+
+    deploy:
+      replicas: 1
+
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "[[ \"$$(pgrep celery)\" != \"\" ]]" || exit 1']
+      start_period: 10s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - data
+    volumes:
+      - ${PRETALX_VOLUME_DATA}:/data
+      - ${PRETALX_VOLUME_PUBLIC}:/public
+    env_file: [".env.pretalx"]
+    environment:
+      PRETALX_LOG_LEVEL: ${PRETALX_LOG_LEVEL}
+      PRETALX_DB_NAME: ${POSTGRES_DB}
+      PRETALX_DB_USER: ${POSTGRES_USER}
+      PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
+
+  cron:
+    image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+    command: cron
+    user: root
+    init: true
+    restart: unless-stopped
+
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "[[ \"$$(pgrep cron)\" != \"\" ]]" || exit 1']
+      start_period: 10s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - data
+    volumes:
+      - ${PRETALX_VOLUME_DATA}:/data
+      - ${PRETALX_VOLUME_PUBLIC}:/public
+    env_file: [".env.pretalx"]
+    environment:
+      PRETALX_DB_NAME: ${POSTGRES_DB}
+      PRETALX_DB_USER: ${POSTGRES_USER}
+      PRETALX_DB_PASS: ${POSTGRES_PASSWORD}
+
+
+  postgres:
+    image: docker.io/library/postgres:15-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    networks:
+      - data
+    volumes:
+      - ${PRETALX_VOLUME_POSTGRES}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+
+  redis:
+    image: docker.io/library/redis:alpine
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 10s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    networks:
+      - data
+    volumes:
+      - ${PRETALX_VOLUME_REDIS}:/data
+

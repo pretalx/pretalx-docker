@@ -1,7 +1,7 @@
-ARG PYTHON_IMAGE=docker.io/library/python
-ARG PYTHON_TAG=3.12-bookworm
+ARG BASE_IMAGE=docker.io/library/python
+ARG BASE_TAG=3.12-bookworm
 
-FROM ${PYTHON_IMAGE}:${PYTHON_TAG}
+FROM ${BASE_IMAGE}:${BASE_TAG}
 
 # Install system dependencies
 RUN apt update && \
@@ -12,7 +12,6 @@ RUN apt update && \
                 libpq-dev \
                 locales \
                 libmemcached-dev \
-                build-essential \
                 locales \
                 nodejs \
                 npm \

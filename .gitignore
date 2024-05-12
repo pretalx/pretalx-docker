@@ -1,5 +1,5 @@
 *.swp
-.env*
+.env
 .state
 pretalx.cfg
 docker-compose.yml
