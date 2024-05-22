@@ -4,8 +4,8 @@ services:
       context: ./context/default
       dockerfile: Dockerfile.debian
       args:
-        BASE_IMAGE: ${BASE_IMAGE}
-        BASE_TAG: ${BASE_TAG}
+        BASE_IMAGE: ${PRETALX_BASE_IMAGE}
+        BASE_TAG: ${PRETALX_BASE_TAG}
         PRETALX_VERSION: ${PRETALX_VERSION}
   worker: *build-default
   cron: *build-default

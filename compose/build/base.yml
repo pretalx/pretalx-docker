@@ -2,9 +2,8 @@ services:
   app: &build-base
     image: ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
     build:
-      context: ./context/default
+      context: ./context/base
       dockerfile: Dockerfile.debian
-      target: base
       args:
         BASE_IMAGE: ${BASE_IMAGE}
         BASE_TAG: ${BASE_TAG}

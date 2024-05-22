@@ -1,71 +1,9 @@
-ARG BASE_IMAGE=docker.io/library/python
+ARG BASE_IMAGE=docker.io/pretalx/base
 ARG BASE_TAG=3.12-bookworm
 
+FROM ${BASE_IMAGE}:${BASE_TAG}
 
-FROM ${BASE_IMAGE}:${BASE_TAG} AS system
-
-# Install system dependencies
-RUN apt update && \
-    apt install -y \
-                git \
-                gettext \
-                libmariadb-dev \
-                libpq-dev \
-                locales \
-                libmemcached-dev \
-                locales \
-                nodejs \
-                npm \
-                --no-install-recommends && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    dpkg-reconfigure locales && \
-    locale-gen C.UTF-8 && \
-    /usr/sbin/update-locale LANG=C.UTF-8 \
-    npm i -g npm
-
-ENV LC_ALL=C.UTF-8
-
-# Add unprivileged user with home directory /pretalx
-RUN groupadd -g 999 pretalx && \
-    useradd -r -u 999 -g pretalx -d /pretalx -ms /bin/bash pretalx
-
-# Add directories for volumes
-RUN mkdir -p /data /public && \
-    chown -R 999:999 /data /public
-
-COPY --chown=999 --chmod=755 entrypoint.sh /pretalx/entrypoint.sh
-
-# Shared resources used
-VOLUME ["/data", "/public"]
-ENTRYPOINT ["/pretalx/entrypoint.sh"]
-
-
-FROM system AS base
-
-# Switch to unprivileged user
-USER pretalx
-WORKDIR /pretalx
-
-# Provide PIP with a correct path to install binaries
-RUN mkdir -p /pretalx/.local/bin
-ENV PATH="/pretalx/.local/bin:${PATH}"
-
-# Install build and runtime dependencies
-RUN pip3 install -U --user pip \
-                            setuptools \
-                            wheel \
-                            typing \
-                            pylibmc \
-                            gunicorn
-
-EXPOSE 8080
-
-
-FROM base AS default
-
-# Set pretalx version build argument,
-# configurable via build-time parameter
+# Set pretalx version
 ARG PRETALX_VERSION=2024.1.0
 
 # Install Pretalx with Postgres and Redis database adapters

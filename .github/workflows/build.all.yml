@@ -109,6 +109,7 @@ jobs:
           type=ref,event=pr
           type=sha
           ${{ inputs.image-tags }}
+          ${{ inputs.base-tag }}
 
     -
       name: Set up QEMU
@@ -135,7 +136,6 @@ jobs:
       id: build-push
       with:
         provenance: false
-        target:     base
         push:       "${{ github.event_name != 'pull_request' }}"
         platforms:  "${{ inputs.platforms }}"
         context:    "{{ defaultContext }}:${{ inputs.context }}"
