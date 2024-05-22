@@ -6,7 +6,7 @@ FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone
 ARG PRETALX_REPO=https://github.com/pretalx/pretalx.git
 ARG PRETALX_REF=main
 
-RUN pip3 install git+${PRETALX_REPO}@${PRETALX_REF}#egg=pretalx[mysql,postgres,redis]
+RUN pip3 install --user git+${PRETALX_REPO}@${PRETALX_REF}#egg=pretalx[mysql,postgres,redis]
 
 USER root
 # Install supervisor

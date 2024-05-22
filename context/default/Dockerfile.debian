@@ -7,4 +7,4 @@ FROM ${BASE_IMAGE}:${BASE_TAG}
 ARG PRETALX_VERSION=2024.1.0
 
 # Install Pretalx with Postgres and Redis database adapters
-RUN pip3 install -U pretalx[mysql,postgres,redis]==${PRETALX_VERSION}
+RUN pip3 install -U --user pretalx[mysql,postgres,redis]==${PRETALX_VERSION}

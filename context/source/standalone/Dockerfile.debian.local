@@ -6,7 +6,7 @@ FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone
 COPY --chown=999 pretalx/pyproject.toml /pretalx
 COPY --chown=999 pretalx/src /pretalx/src
 
-RUN pip3 install -e /pretalx/[mysql,postgres,redis]
+RUN pip3 install --user -e /pretalx/[mysql,postgres,redis]
 
 USER root
 # Install supervisor
