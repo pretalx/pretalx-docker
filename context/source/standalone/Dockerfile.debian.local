@@ -1,7 +1,7 @@
 ARG PRETALX_BASE_IMAGE=pretalx/base
 ARG PRETALX_BASE_TAG=3.12-bookworm
 
-FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
 
 COPY --chown=999 pretalx/pyproject.toml /pretalx
 COPY --chown=999 pretalx/src /pretalx/src

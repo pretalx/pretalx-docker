@@ -1,7 +1,7 @@
 ARG PRETALX_BASE_IMAGE=pretalx/standalone-extended
 ARG PRETALX_BASE_TAG=2024.2.1
 
-FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone-extended-cron
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
 
 RUN apt update && \
     apt install -y \
