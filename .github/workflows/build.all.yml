@@ -80,7 +80,6 @@ jobs:
       imageid:    ${{ steps.build-push.outputs.imageid }}
       digest:     ${{ steps.build-push.outputs.digest }}
       metadata:   ${{ steps.build-push.outputs.metadata }}
-      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -155,10 +154,6 @@ jobs:
         name: pretalx-base
         path: /tmp/pretalx-base.tar
 
-    - id: digest
-      run: |
-        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
-
 
   # pretalx/pretalx:*
   default:
@@ -171,7 +166,6 @@ jobs:
       imageid:    ${{ steps.build-push.outputs.imageid }}
       digest:     ${{ steps.build-push.outputs.digest }}
       metadata:   ${{ steps.build-push.outputs.metadata }}
-      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -186,6 +180,10 @@ jobs:
       run: |
         docker load --input /tmp/pretalx-base.tar
         docker image ls -a
+        IMAGE_REPO=$(docker images --format "{{.Repository}}" | head -n 1)
+        IMAGE_TAG=$(docker images --format "{{.Tag}}" | head -n 1)
+        echo "BASE_IMAGE=${IMAGE_REPO}" >> "$GITHUB_ENV"
+        echo "BASE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
 
     -
       name: Checkout repository
@@ -254,8 +252,8 @@ jobs:
         context:    "{{ defaultContext }}:${{ inputs.context }}"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/base@sha256
-          BASE_TAG=${{ needs.base.outputs.digest-sha }}
+          BASE_IMAGE=${{ env.BASE_IMAGE }}
+          BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-default.tar"
@@ -266,10 +264,6 @@ jobs:
       with:
         name: pretalx-default
         path: /tmp/pretalx-default.tar
-
-    - id: digest
-      run: |
-        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
 
 
   # pretalx/pretalx-extended:*
@@ -283,7 +277,6 @@ jobs:
       imageid:    ${{ steps.build-push.outputs.imageid }}
       digest:     ${{ steps.build-push.outputs.digest }}
       metadata:   ${{ steps.build-push.outputs.metadata }}
-      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -298,6 +291,10 @@ jobs:
       run: |
         docker load --input /tmp/pretalx-default.tar
         docker image ls -a
+        IMAGE_REPO=$(docker images --format "{{.Repository}}" | head -n 1)
+        IMAGE_TAG=$(docker images --format "{{.Tag}}" | head -n 1)
+        echo "BASE_IMAGE=${IMAGE_REPO}" >> "$GITHUB_ENV"
+        echo "BASE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
 
     -
       name: Checkout repository
@@ -366,8 +363,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}@sha256
-          BASE_TAG=${{ needs.default.outputs.digest-sha }}
+          BASE_IMAGE=${{ env.BASE_IMAGE }}
+          BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-extended.tar"
@@ -378,10 +375,6 @@ jobs:
       with:
         name: pretalx-default
         path: /tmp/pretalx-extended.tar
-
-    - id: digest
-      run: |
-        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
 
 
   # pretalx/pretalx-extended:*-cron
@@ -409,6 +402,10 @@ jobs:
       run: |
         docker load --input /tmp/pretalx-extended.tar
         docker image ls -a
+        IMAGE_REPO=$(docker images --format "{{.Repository}}" | head -n 1)
+        IMAGE_TAG=$(docker images --format "{{.Tag}}" | head -n 1)
+        echo "BASE_IMAGE=${IMAGE_REPO}" >> "$GITHUB_ENV"
+        echo "BASE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
 
     -
       name: Checkout repository
@@ -477,8 +474,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}-extended@sha256
-          BASE_TAG=${{ needs.extended.outputs.digest-sha }}
+          BASE_IMAGE=${{ env.BASE_IMAGE }}
+          BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
 
@@ -498,7 +495,6 @@ jobs:
       imageid:    ${{ steps.build-push.outputs.imageid }}
       digest:     ${{ steps.build-push.outputs.digest }}
       metadata:   ${{ steps.build-push.outputs.metadata }}
-      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -513,6 +509,10 @@ jobs:
       run: |
         docker load --input /tmp/pretalx-default.tar
         docker image ls -a
+        IMAGE_REPO=$(docker images --format "{{.Repository}}" | head -n 1)
+        IMAGE_TAG=$(docker images --format "{{.Tag}}" | head -n 1)
+        echo "BASE_IMAGE=${IMAGE_REPO}" >> "$GITHUB_ENV"
+        echo "BASE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
 
     -
       name: Checkout repository
@@ -581,8 +581,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/default"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}@sha256
-          BASE_TAG=${{ needs.default.outputs.digest-sha }}
+          BASE_IMAGE=${{ env.BASE_IMAGE }}
+          BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone.tar"
@@ -593,10 +593,6 @@ jobs:
       with:
         name: pretalx-standalone
         path: /tmp/pretalx-standalone.tar
-
-    - id: digest
-      run: |
-        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
 
 
   # pretalx/standalone-extended:*
@@ -610,7 +606,6 @@ jobs:
       imageid:    ${{ steps.build-push.outputs.imageid }}
       digest:     ${{ steps.build-push.outputs.digest }}
       metadata:   ${{ steps.build-push.outputs.metadata }}
-      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -625,6 +620,10 @@ jobs:
       run: |
         docker load --input /tmp/pretalx-standalone.tar
         docker image ls -a
+        IMAGE_REPO=$(docker images --format "{{.Repository}}" | head -n 1)
+        IMAGE_TAG=$(docker images --format "{{.Tag}}" | head -n 1)
+        echo "BASE_IMAGE=${IMAGE_REPO}" >> "$GITHUB_ENV"
+        echo "BASE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
 
     -
       name: Checkout repository
@@ -693,8 +692,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/pretalx-standalone@sha256
-          BASE_TAG=${{ needs.standalone.outputs.digest-sha }}
+          BASE_IMAGE=${{ env.BASE_IMAGE }}
+          BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone-extended.tar"
@@ -705,10 +704,6 @@ jobs:
       with:
         name: pretalx-default
         path: /tmp/pretalx-standalone-extended.tar
-
-    - id: digest
-      run: |
-        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
 
 
   # pretalx/standalone-extended:*-cron
@@ -804,7 +799,7 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/extended.cron"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/standalone-extended@sha256
-          BASE_TAG=${{ needs.standalone-extended.outputs.digest-sha }}
+          BASE_IMAGE=${{ env.BASE_IMAGE }}
+          BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
