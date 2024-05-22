@@ -32,11 +32,6 @@ on:
         required: false
         default: 3.12-bookworm
 
-      build-args:
-        description: "Optional build arguments, takes a YAML multiline string | with ENV=variables"
-        type: string
-        required: false
-        default: ""
       image-tags:
         description: "Optional additional image tags, takes a YAML multiline string |"
         type: string
