@@ -1,8 +1,0 @@
-ARG BASE_IMAGE=docker.io/library/pretalx/pretalx
-ARG BASE_TAG=latest
-
-FROM ${BASE_IMAGE}:${BASE_TAG}
-
-RUN pip3 install -U prtx-faq \
-                    pretalx-pages \
-                    pretalx-public-voting

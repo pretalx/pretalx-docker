@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+COMPOSE_DEFAULT_ARGS="-f compose.yml"
+
+BUILD_ENVS=(
+  "--env-file .env.build -f compose/build/base.yml"
+  "--env-file .env.build -f compose/build/default.yml"
+  "--env-file .env.build -f compose/build/extended.yml"
+  "--env-file .env.build -f compose/build/extended.cron.yml"
+)
+
+for env in "${BUILD_ENVS[@]}"
+do
+  docker compose ${COMPOSE_DEFAULT_ARGS} $env build app
+done
+
+set +x
+source .env.build
+
+BUILD_ARTIFACTS=(
+  "${PRETALX_BASE_IMAGE}"
+  "${PRETALX_IMAGE}"
+  "${PRETALX_EXTENDED_IMAGE}"
+)
+
+for artifact in "${BUILD_ARTIFACTS[@]}"
+do
+  docker image ls "${artifact/${artifact/\/*/}\/}"
+done

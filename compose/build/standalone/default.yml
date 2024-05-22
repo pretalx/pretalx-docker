@@ -1,0 +1,12 @@
+services:
+  app: &build-standalone
+    image: ${PRETALX_STANDALONE_IMAGE}:${PRETALX_STANDALONE_TAG}
+    build:
+      context: ./context/standalone/default
+      dockerfile: Dockerfile.debian
+      args:
+        PRETALX_BASE_IMAGE: ${PRETALX_STANDALONE_BASE_IMAGE}
+        PRETALX_BASE_TAG: ${PRETALX_STANDALONE_BASE_TAG}
+  worker: *build-standalone
+  cron: *build-standalone
+  migrations: *build-standalone

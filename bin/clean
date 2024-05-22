@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+docker images | grep pretalx | awk '{ print $3 }' | xargs docker rmi -f
+
+## Use with caution
+# docker buildx prune -a
+
+PRETALX_STANDALONE_SOURCE_DIR=context/source/standalone/pretalx
+[ -d $PRETALX_STANDALONE_SOURCE_DIR  ]; rm -rf $PRETALX_STANDALONE_SOURCE_DIR

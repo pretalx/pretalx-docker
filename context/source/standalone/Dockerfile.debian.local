@@ -1,0 +1,24 @@
+ARG PRETALX_BASE_IMAGE=pretalx/base
+ARG PRETALX_BASE_TAG=3.12-bookworm
+
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone
+
+COPY --chown=999 pretalx/pyproject.toml /pretalx
+COPY --chown=999 pretalx/src /pretalx/src
+
+RUN pip3 install -e /pretalx/[mysql,postgres,redis]
+
+USER root
+# Install supervisor
+RUN apt update && \
+    apt install -y \
+                supervisor \
+                --no-install-recommends && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo 'pretalx ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord' >> /etc/sudoers
+
+# Provide and enable supervisor configuration
+COPY --chown=0 --chmod=644 supervisord.conf /etc/supervisord.conf
+
+CMD ["supervisor"]

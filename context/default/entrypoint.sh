@@ -33,6 +33,7 @@ if [ ! -d "$PRETALX_FILESYSTEM_STATIC" ]; then
 fi
 
 case "${1}" in
+    # maintenance commands
     migrate)
         python3 -m pretalx migrate --noinput
         ${0} rebuild
@@ -44,6 +45,12 @@ case "${1}" in
             touch "$PRETALX_FILESYSTEM_STATIC/.built"
         fi
         ;;
+    upgrade)
+        ${0} rebuild
+        python3 -m pretalx regenerate_css
+        ;;
+
+    # default web and task workers
     gunicorn)
         exec gunicorn pretalx.wsgi \
             --name pretalx \
@@ -57,8 +64,15 @@ case "${1}" in
     celery)
         exec celery -A pretalx.celery_app worker -l ${PRETALX_LOG_LEVEL}
         ;;
+
+    # for use with the cron base image
     cron)
         exec cron -f -L 15
+        ;;
+    # for use with the standalone image variant
+    supervisor)
+        ${0} migrate
+        exec sudo -E /usr/bin/supervisord -n -c /etc/supervisord.conf
         ;;
     *)
         python3 -m pretalx "$@"

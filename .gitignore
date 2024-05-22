@@ -1,6 +1,8 @@
 *.swp
 .env
+.env.build
 .env.pretalx
 .state
 pretalx.cfg
 docker-compose.yml
+context/source/standalone/pretalx

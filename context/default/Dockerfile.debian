@@ -1,14 +1,15 @@
 ARG BASE_IMAGE=docker.io/library/python
 ARG BASE_TAG=3.12-bookworm
 
-FROM ${BASE_IMAGE}:${BASE_TAG}
+
+FROM ${BASE_IMAGE}:${BASE_TAG} AS system
 
 # Install system dependencies
 RUN apt update && \
     apt install -y \
-                cron \
                 git \
                 gettext \
+                libmariadb-dev \
                 libpq-dev \
                 locales \
                 libmemcached-dev \
@@ -33,35 +34,39 @@ RUN groupadd -g 999 pretalx && \
 RUN mkdir -p /data /public && \
     chown -R 999:999 /data /public
 
-# Provide and enable crontab
-COPY --chown=0 --chmod=644 crontab /etc/crontab
-RUN crontab /etc/crontab
+COPY --chown=999 --chmod=755 entrypoint.sh /pretalx/entrypoint.sh
+
+# Shared resources used
+VOLUME ["/data", "/public"]
+ENTRYPOINT ["/pretalx/entrypoint.sh"]
+
+
+FROM system AS base
 
 # Switch to unprivileged user
 USER pretalx
 WORKDIR /pretalx
-
-ARG PRETALX_VERSION=2024.1.0
 
 # Provide PIP with a correct path to install binaries
 RUN mkdir -p /pretalx/.local/bin
 ENV PATH="/pretalx/.local/bin:${PATH}"
 
 # Install build and runtime dependencies
-RUN pip3 install -U pip \
-                    setuptools \
-                    wheel \
-                    typing \
-                    pylibmc \
-                    gunicorn
-# Install Pretalx with Postgres and Redis database adapters
-RUN pip3 install -U pretalx[postgres,redis]==${PRETALX_VERSION}
+RUN pip3 install -U --user pip \
+                            setuptools \
+                            wheel \
+                            typing \
+                            pylibmc \
+                            gunicorn
 
-COPY --chown=999 --chmod=755 entrypoint.sh /pretalx/entrypoint.sh
-
-# Shared resources used
-VOLUME ["/data", "/public"]
-# Shared resources provided
 EXPOSE 8080
 
-ENTRYPOINT ["/pretalx/entrypoint.sh"]
+
+FROM base AS default
+
+# Set pretalx version build argument,
+# configurable via build-time parameter
+ARG PRETALX_VERSION=2024.1.0
+
+# Install Pretalx with Postgres and Redis database adapters
+RUN pip3 install -U pretalx[mysql,postgres,redis]==${PRETALX_VERSION}

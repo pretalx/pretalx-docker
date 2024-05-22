@@ -1,0 +1,21 @@
+
+ARG PRETALX_BASE_IMAGE=docker.io/library/pretalx/pretalx
+ARG PRETALX_BASE_TAG=2024.1.0
+
+
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS system
+USER root
+
+# Install cron
+RUN apt update && \
+    apt install -y \
+                cron \
+                --no-install-recommends && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Provide and enable crontab
+COPY --chown=0 --chmod=644 crontab /etc/crontab
+RUN crontab /etc/crontab
+
+USER pretalx

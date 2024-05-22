@@ -1,0 +1,20 @@
+ARG PRETALX_BASE_IMAGE=docker.io/pretalx/pretalx
+ARG PRETALX_BASE_TAG=2024.1.0
+
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone
+
+USER root
+# Install supervisor
+RUN apt update && \
+    apt install -y \
+                sudo \
+                supervisor \
+                --no-install-recommends && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo 'pretalx ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord' >> /etc/sudoers
+
+# Provide and enable supervisor configuration
+COPY --chown=0 --chmod=644 supervisord.conf /etc/supervisord.conf
+
+CMD ["supervisor"]
