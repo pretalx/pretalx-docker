@@ -77,9 +77,10 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      imageid:  ${{ steps.build-push.outputs.imageid }}
-      digest:   ${{ steps.build-push.outputs.digest }}
-      metadata: ${{ steps.build-push.outputs.metadata }}
+      imageid:    ${{ steps.build-push.outputs.imageid }}
+      digest:     ${{ steps.build-push.outputs.digest }}
+      metadata:   ${{ steps.build-push.outputs.metadata }}
+      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -154,6 +155,10 @@ jobs:
         name: pretalx-base
         path: /tmp/pretalx-base.tar
 
+    - id: digest
+      run: |
+        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
+
 
   # pretalx/pretalx:*
   default:
@@ -163,9 +168,10 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      imageid:  ${{ steps.build-push.outputs.imageid }}
-      digest:   ${{ steps.build-push.outputs.digest }}
-      metadata: ${{ steps.build-push.outputs.metadata }}
+      imageid:    ${{ steps.build-push.outputs.imageid }}
+      digest:     ${{ steps.build-push.outputs.digest }}
+      metadata:   ${{ steps.build-push.outputs.metadata }}
+      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -249,7 +255,7 @@ jobs:
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ github.repository_owner }}/base@sha256
-          BASE_TAG=$( echo "${{ needs.base.outputs.digest }}" | cut -d: -f2)
+          BASE_TAG=${{ needs.base.outputs.digest-sha }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-default.tar"
@@ -261,6 +267,10 @@ jobs:
         name: pretalx-default
         path: /tmp/pretalx-default.tar
 
+    - id: digest
+      run: |
+        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
+
 
   # pretalx/pretalx-extended:*
   extended:
@@ -270,9 +280,10 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      imageid:  ${{ steps.build-push.outputs.imageid }}
-      digest:   ${{ steps.build-push.outputs.digest }}
-      metadata: ${{ steps.build-push.outputs.metadata }}
+      imageid:    ${{ steps.build-push.outputs.imageid }}
+      digest:     ${{ steps.build-push.outputs.digest }}
+      metadata:   ${{ steps.build-push.outputs.metadata }}
+      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -356,7 +367,7 @@ jobs:
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}@sha256
-          BASE_TAG=$( echo "${{ needs.default.outputs.digest }}" | cut -d: -f2)
+          BASE_TAG=${{ needs.default.outputs.digest-sha }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-extended.tar"
@@ -367,6 +378,11 @@ jobs:
       with:
         name: pretalx-default
         path: /tmp/pretalx-extended.tar
+
+    - id: digest
+      run: |
+        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
+
 
   # pretalx/pretalx-extended:*-cron
   extended-cron:
@@ -462,7 +478,7 @@ jobs:
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}-extended@sha256
-          BASE_TAG=$( echo "${{ needs.extended.outputs.digest }}" | cut -d: -f2)
+          BASE_TAG=${{ needs.extended.outputs.digest-sha }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
 
@@ -479,9 +495,10 @@ jobs:
       packages: write
 
     outputs:
-      imageid:  ${{ steps.build-push.outputs.imageid }}
-      digest:   ${{ steps.build-push.outputs.digest }}
-      metadata: ${{ steps.build-push.outputs.metadata }}
+      imageid:    ${{ steps.build-push.outputs.imageid }}
+      digest:     ${{ steps.build-push.outputs.digest }}
+      metadata:   ${{ steps.build-push.outputs.metadata }}
+      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -565,7 +582,7 @@ jobs:
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}@sha256
-          BASE_TAG=$( echo "${{ needs.default.outputs.digest }}" | cut -d: -f2)
+          BASE_TAG=${{ needs.default.outputs.digest-sha }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone.tar"
@@ -577,6 +594,10 @@ jobs:
         name: pretalx-standalone
         path: /tmp/pretalx-standalone.tar
 
+    - id: digest
+      run: |
+        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
+
 
   # pretalx/standalone-extended:*
   standalone-extended:
@@ -586,9 +607,10 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      imageid:  ${{ steps.build-push.outputs.imageid }}
-      digest:   ${{ steps.build-push.outputs.digest }}
-      metadata: ${{ steps.build-push.outputs.metadata }}
+      imageid:    ${{ steps.build-push.outputs.imageid }}
+      digest:     ${{ steps.build-push.outputs.digest }}
+      metadata:   ${{ steps.build-push.outputs.metadata }}
+      digest-sha: ${{ steps.digest.outputs.sha }}
 
     steps:
 
@@ -672,7 +694,7 @@ jobs:
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ github.repository_owner }}/pretalx-standalone@sha256
-          BASE_TAG=$( echo "${{ needs.standalone.outputs.digest }}" | cut -d: -f2)
+          BASE_TAG=${{ needs.standalone.outputs.digest-sha }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone-extended.tar"
@@ -683,6 +705,10 @@ jobs:
       with:
         name: pretalx-default
         path: /tmp/pretalx-standalone-extended.tar
+
+    - id: digest
+      run: |
+        echo "sha=$(echo "${{ steps.build-push.outputs.digest }}" | cut -d: -f2)" >> "$GITHUB_OUTPUT"
 
 
   # pretalx/standalone-extended:*-cron
@@ -779,6 +805,6 @@ jobs:
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ github.repository_owner }}/standalone-extended@sha256
-          BASE_TAG=$( echo "${{ needs.standalone-extended.outputs.digest }}" | cut -d: -f2)
+          BASE_TAG=${{ needs.standalone-extended.outputs.digest-sha }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
