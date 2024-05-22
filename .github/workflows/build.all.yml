@@ -581,7 +581,7 @@ jobs:
   # pretalx/standalone-extended:*
   standalone-extended:
 
-    name: Build default image
+    name: Build extended standalone image
     needs: standalone
     runs-on: ubuntu-latest
 
@@ -688,7 +688,7 @@ jobs:
   # pretalx/standalone-extended:*-cron
   standalone-extended-cron:
 
-    name: Build default image
+    name: Build extended standalone image with cron
     needs: standalone-extended
     runs-on: ubuntu-latest
 
