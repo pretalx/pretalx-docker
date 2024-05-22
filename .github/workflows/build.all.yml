@@ -46,7 +46,7 @@ on:
         description: "Optional path to a Dockerfile to build, relative to the build context, string"
         type: string
         required: false
-        default: Dockerfile
+        default: Dockerfile.debian
 
 
       docker_io:
