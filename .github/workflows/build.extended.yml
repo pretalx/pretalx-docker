@@ -1,22 +1,6 @@
 name: Pretalx extended OCI image
 
 on:
-  pull_request:
-    branches:
-      - main
-      - next
-    paths:
-      - .github/workflows/build-and-push.yml
-      - .github/workflows/build.plugins.yml
-      - context/plugins
-  push:
-    branches:
-      - next
-    paths:
-      - .github/workflows/build-and-push.yml
-      - .github/workflows/build.plugins.yml
-      - context/plugins
-
   workflow_call:
     inputs:
       ref:
@@ -46,7 +30,7 @@ jobs:
     with:
       image-name: pretalx-extended
       platforms: linux/amd64
-      context: ./context/plugins
+      context: ./context/extended
       file: Dockerfile.debian
       build-args: |
         BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/pretalx
@@ -59,7 +43,7 @@ jobs:
     with:
       image-name: pretalx-extended
       platforms: linux/amd64
-      context: ./context/plugins
+      context: ./context/extended
       file: Dockerfile.debian
       ref: ${{ inputs.ref }}
       build-args: |
