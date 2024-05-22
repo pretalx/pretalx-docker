@@ -252,8 +252,8 @@ jobs:
         context:    "{{ defaultContext }}:${{ inputs.context }}"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ env.BASE_IMAGE }}
-          BASE_TAG=${{ env.BASE_TAG }}
+          PRETALX_BASE_IMAGE=${{ env.BASE_IMAGE }}
+          PRETALX_BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-default.tar"
@@ -363,8 +363,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ env.BASE_IMAGE }}
-          BASE_TAG=${{ env.BASE_TAG }}
+          PRETALX_BASE_IMAGE=${{ env.BASE_IMAGE }}
+          PRETALX_BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-extended.tar"
@@ -474,8 +474,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ env.BASE_IMAGE }}
-          BASE_TAG=${{ env.BASE_TAG }}
+          PRETALX_BASE_IMAGE=${{ env.BASE_IMAGE }}
+          PRETALX_BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
 
@@ -581,8 +581,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/default"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ env.BASE_IMAGE }}
-          BASE_TAG=${{ env.BASE_TAG }}
+          PRETALX_BASE_IMAGE=${{ env.BASE_IMAGE }}
+          PRETALX_BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone.tar"
@@ -692,8 +692,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ env.BASE_IMAGE }}
-          BASE_TAG=${{ env.BASE_TAG }}
+          PRETALX_BASE_IMAGE=${{ env.BASE_IMAGE }}
+          PRETALX_BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone-extended.tar"
@@ -799,7 +799,7 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/extended.cron"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ env.BASE_IMAGE }}
-          BASE_TAG=${{ env.BASE_TAG }}
+          PRETALX_BASE_IMAGE=${{ env.BASE_IMAGE }}
+          PRETALX_BASE_TAG=${{ env.BASE_TAG }}
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
