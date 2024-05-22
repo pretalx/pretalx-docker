@@ -248,8 +248,8 @@ jobs:
         context:    "{{ defaultContext }}:${{ inputs.context }}"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/base
-          BASE_TAG=${{ needs.base.outputs.digest }}
+          BASE_IMAGE=${{ github.repository_owner }}/base@sha256
+          BASE_TAG=$( echo "${{ needs.base.outputs.digest }}" | cut -d: -f2)
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-default.tar"
@@ -355,8 +355,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}
-          BASE_TAG=${{ needs.default.outputs.digest }}
+          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}@sha256
+          BASE_TAG=$( echo "${{ needs.default.outputs.digest }}" | cut -d: -f2)
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-extended.tar"
@@ -461,8 +461,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}-extended
-          BASE_TAG=${{ needs.extended.outputs.digest }}
+          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}-extended@sha256
+          BASE_TAG=$( echo "${{ needs.extended.outputs.digest }}" | cut -d: -f2)
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
 
@@ -564,8 +564,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/default"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}
-          BASE_TAG=${{ needs.default.outputs.digest }}
+          BASE_IMAGE=${{ github.repository_owner }}/${{ inputs.image-name }}@sha256
+          BASE_TAG=$( echo "${{ needs.default.outputs.digest }}" | cut -d: -f2)
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone.tar"
@@ -671,8 +671,8 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/extended"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/pretalx-standalone
-          BASE_TAG=${{ needs.standalone.outputs.digest }}
+          BASE_IMAGE=${{ github.repository_owner }}/pretalx-standalone@sha256
+          BASE_TAG=$( echo "${{ needs.standalone.outputs.digest }}" | cut -d: -f2)
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
         outputs:    "type=docker,dest=/tmp/pretalx-standalone-extended.tar"
@@ -778,7 +778,7 @@ jobs:
         context:    "{{ defaultContext }}:./context/standalone/extended.cron"
         file:       "${{ inputs.file }}"
         build-args: |
-          BASE_IMAGE=${{ github.repository_owner }}/standalone-extended
-          BASE_TAG=${{ needs.standalone-extended.outputs.digest }}
+          BASE_IMAGE=${{ github.repository_owner }}/standalone-extended@sha256
+          BASE_TAG=$( echo "${{ needs.standalone-extended.outputs.digest }}" | cut -d: -f2)
         tags:       "${{ steps.meta.outputs.tags }}"
         labels:     "${{ steps.meta.outputs.labels }}"
