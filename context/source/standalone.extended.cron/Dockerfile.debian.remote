@@ -1,7 +1,7 @@
 ARG PRETALX_BASE_IMAGE=pretalx/standalone
 ARG PRETALX_BASE_TAG=2024.1.0-source-remote
 
-FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone-extended-cron
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
 
 USER pretalx
 RUN pip3 install --user git+https://github.com/pretalx/prtx-faq.git@master#egg=prtx-faq \

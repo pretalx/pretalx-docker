@@ -1,7 +1,7 @@
 ARG PRETALX_BASE_IMAGE=docker.io/pretalx/pretalx
 ARG PRETALX_BASE_TAG=2024.1.0
 
-FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG} AS standalone
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
 
 USER root
 # Install supervisor
