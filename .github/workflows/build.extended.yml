@@ -1,0 +1,52 @@
+name: Pretalx extended OCI image
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+        default: ${{ github.ref }}
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: false
+        type: string
+
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+
+jobs:
+
+  call-build-and-push:
+    name: Call image build
+    uses: ./.github/workflows/build-and-push.yml
+    if: ( inputs.ref == 0 )
+    with:
+      image-name: pretalx-extended
+      platforms: linux/amd64
+      context: ./context/extended
+      file: Dockerfile.debian
+      build-args: |
+        BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/pretalx
+        BASE_TAG=latest
+    secrets: inherit
+  call-build-and-push-ref:
+    name: Call tagged image build
+    uses: ./.github/workflows/build-and-push.yml
+    if: ( inputs.ref != 0 )
+    with:
+      image-name: pretalx-extended
+      platforms: linux/amd64
+      context: ./context/extended
+      file: Dockerfile.debian
+      ref: ${{ inputs.ref }}
+      build-args: |
+        BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/pretalx
+        BASE_TAG=latest
+    secrets: inherit

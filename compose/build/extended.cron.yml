@@ -1,0 +1,12 @@
+services:
+  app: &build-extended-cron
+    image: ${PRETALX_EXTENDED_CRON_IMAGE}:${PRETALX_EXTENDED_CRON_TAG}
+    build:
+      context: ./context/cron
+      dockerfile: Dockerfile.debian
+      args:
+        PRETALX_BASE_IMAGE: ${PRETALX_EXTENDED_CRON_BASE_IMAGE}
+        PRETALX_BASE_TAG: ${PRETALX_EXTENDED_CRON_BASE_TAG}
+  worker: *build-extended-cron
+  cron: *build-extended-cron
+  migrations: *build-extended-cron

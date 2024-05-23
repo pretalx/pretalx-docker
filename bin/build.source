@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+source .env.build
+set -euxo pipefail
+
+COMPOSE_DEFAULT_ARGS="-f compose.yml"
+
+BUILD_ENVS=(
+  "--env-file .env.build -f compose/build/base.yml"
+  "--env-file .env.build -f compose/build/source/standalone.local.yml"
+  "--env-file .env.build -f compose/build/source/standalone.remote.yml"
+  "--env-file .env.build -f compose/build/source/standalone.extended.cron.remote.yml"
+  "--env-file .env.build -f compose/build/source/extended.cron.remote.yml"
+)
+
+PRETALX_STANDALONE_SOURCE_DIR=context/source/standalone/pretalx
+
+[ ! -d $PRETALX_STANDALONE_SOURCE_DIR  ] && git clone --depth 1 -b $PRETALX_REF $PRETALX_REPO $PRETALX_STANDALONE_SOURCE_DIR
+
+for env in "${BUILD_ENVS[@]}"
+do
+  docker compose ${COMPOSE_DEFAULT_ARGS} $env build app
+done
+
+BUILD_ARTIFACTS=(
+  "${PRETALX_BASE_IMAGE}"
+  "${PRETALX_EXTENDED_IMAGE}"
+  "${PRETALX_STANDALONE_IMAGE}"
+  "${PRETALX_STANDALONE_EXTENDED_IMAGE}"
+)
+
+for artifact in "${BUILD_ARTIFACTS[@]}"
+do
+  docker image ls "${artifact/${artifact/\/*/}\/}"
+done

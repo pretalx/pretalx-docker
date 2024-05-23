@@ -1,0 +1,54 @@
+name: Pretalx OCI image
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+        default: ${{ github.ref }}
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: false
+        type: string
+
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+
+jobs:
+
+  call-build-and-push:
+    name: Call image build
+    uses: ./.github/workflows/build-and-push.yml
+    if: ( inputs.ref == 0 )
+    with:
+      image-name: pretalx
+      platforms: linux/amd64
+      context: ./context/default
+      file: Dockerfile.debian
+      build-args: |
+        BASE_IMAGE=docker.io/library/python
+        BASE_TAG=3.12-bookworm
+        PRETALX_VERSION=2024.1.0
+    secrets: inherit
+  call-build-and-push-ref:
+    name: Call tagged image build
+    uses: ./.github/workflows/build-and-push.yml
+    if: ( inputs.ref != 0 )
+    with:
+      image-name: pretalx
+      platforms: linux/amd64
+      context: ./context/default
+      file: Dockerfile.debian
+      ref: ${{ inputs.ref }}
+      build-args: |
+        BASE_IMAGE=docker.io/library/python
+        BASE_TAG=3.12-bookworm
+        PRETALX_VERSION=2024.1.0
+    secrets: inherit

@@ -1,0 +1,2 @@
+*/15 * * * * su pretalx -c 'python -m pretalx runperiodic' > /dev/stdout 2>&1
+0 4 1 * * su pretalx -c 'python -m pretalx clearsessions' > /dev/stdout 2>&1

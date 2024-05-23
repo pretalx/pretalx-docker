@@ -1,0 +1,23 @@
+ARG PRETALX_BASE_IMAGE=pretalx/standalone
+ARG PRETALX_BASE_TAG=2024.1.0-source-remote
+
+FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
+
+USER pretalx
+RUN pip3 install --user git+https://github.com/pretalx/prtx-faq.git@master#egg=prtx-faq \
+                    git+https://github.com/pretalx/pretalx-pages.git@main#egg=pretalx-pages \
+                    git+https://github.com/pretalx/pretalx-public-voting.git@main#egg=pretalx-public-voting
+
+USER root
+RUN apt update && \
+    apt install -y \
+                cron \
+                --no-install-recommends && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo 'pretalx ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord' >> /etc/sudoers
+
+COPY --chown=0 --chmod=644 crontab /etc/crontab
+RUN crontab /etc/crontab
+
+COPY --chown=0 --chmod=644 supervisord.conf /etc/supervisord.conf

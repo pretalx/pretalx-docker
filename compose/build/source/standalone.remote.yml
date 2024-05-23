@@ -1,0 +1,23 @@
+services:
+  app: &build-standalone-remote
+    image: ${PRETALX_SOURCE_STANDALONE_IMAGE}:${PRETALX_SOURCE_STANDALONE_REMOTE_TAG}
+    build:
+      context: ./context/source/standalone
+      dockerfile: Dockerfile.debian.remote
+      args:
+        PRETALX_BASE_IMAGE: ${PRETALX_STANDALONE_BASE_IMAGE}
+        PRETALX_BASE_TAG: ${PRETALX_STANDALONE_BASE_TAG}
+        PRETALX_REPO: ${PRETALX_REPO}
+        PRETALX_REF: ${PRETALX_REF}
+  worker:
+    <<: *build-standalone-remote
+    deploy:
+      replicas: 0
+  cron:
+    <<: *build-standalone-remote
+    deploy:
+      replicas: 0
+  migrations:
+    <<: *build-standalone-remote
+    deploy:
+      replicas: 0
