@@ -37,11 +37,6 @@ on:
         type: string
         required: false
         default: ""
-      context:
-        description: "Optional build context, defaults to the ref that triggered the run, and not ./ in the checkout root, string"
-        type: string
-        required: false
-        default: "./context/default"
       file:
         description: "Optional path to a Dockerfile to build, relative to the build context, string"
         type: string
@@ -138,7 +133,7 @@ jobs:
         provenance: false
         push:       "${{ github.event_name != 'pull_request' }}"
         platforms:  "${{ inputs.platforms }}"
-        context:    "{{ defaultContext }}:${{ inputs.context }}"
+        context:    "{{ defaultContext }}:./context/base"
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ inputs.base-image }}
@@ -249,7 +244,7 @@ jobs:
         provenance: false
         push:       "${{ github.event_name != 'pull_request' }}"
         platforms:  "${{ inputs.platforms }}"
-        context:    "{{ defaultContext }}:${{ inputs.context }}"
+        context:    "{{ defaultContext }}:./context/default"
         file:       "${{ inputs.file }}"
         build-args: |
           BASE_IMAGE=${{ env.BASE_IMAGE }}
