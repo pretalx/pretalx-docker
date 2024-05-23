@@ -55,6 +55,7 @@ $ tree -d -L 3 -a -I '.git'
     - `standalone/`, overlays for building standalone images
 - `config/`, runtime configuration files
 - `context/`, Container image build contexts
+  - `base/`, the pretalx base image with its system dependencies
   - `cron/`, an image variant with cron
   - `default/`, the Pretalx stock image
   - `extended/`, an extended Pretalx image variant with plugins
@@ -112,7 +113,7 @@ Compose overlays for running locally and/or behind a Traefik reverse proxy.
 
 Compose overlays to exemplify the build of certain image variants.
 
-- `base.yml`, builds the `base` stage from the `default` context, used for the `pretalx/base` image
+- `base.yml`, builds the `base` context, used for the `pretalx/base` image
 - `default.yml`, builds the image from the `default` context, used for the `pretalx/pretalx` image
 - `extended.yml`, builds the image from the `extended` context, based on `default`, used for the `pretalx/pretalx-extended` image
 - `extended.cron.yml`, builds the image from the `cron` context, based on `extended`, used for the `pretalx/pretalx-extended` image, tagged `-cron`
@@ -143,6 +144,11 @@ Configuration manifests of run-time components.
 
 The Docker build contexts that define the various images supported by this repository.
 
+##### context/base/
+
+- `Dockerfile.debian`, Debian-based container image manifest for Pretalx, used for the `pretalx/base` image
+- `entrypoint.sh`, script to be evaluated at runtime when the container starts; prepared for all variants; expects an argument
+
 ##### context/cron/
 
 - `crontab`, configuration to run periodic tasks; adapted for use inside a container
@@ -150,8 +156,7 @@ The Docker build contexts that define the various images supported by this repos
 
 ##### context/default/
 
-- `Dockerfile.debian`, Debian-based container image manifest for Pretalx, used for the `pretalx/base` and `pretalx/pretalx` images
-- `entrypoint.sh`, script to be evaluated at runtime when the container starts; prepared for all variants; expects an argument
+- `Dockerfile.debian`, Debian-based container image manifest for Pretalx, used for the `pretalx/pretalx` image
 
 ##### context/extended/
 
