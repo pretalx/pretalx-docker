@@ -373,7 +373,7 @@ jobs:
       name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: pretalx-default
+        name: pretalx-extended
         path: /tmp/pretalx-extended.tar
 
 
@@ -702,7 +702,7 @@ jobs:
       name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: pretalx-default
+        name: pretalx-standalone-extended
         path: /tmp/pretalx-standalone-extended.tar
 
 
