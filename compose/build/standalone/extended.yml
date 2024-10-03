@@ -1,0 +1,12 @@
+services:
+  app: &build-standalone-extended
+    image: ${PRETALX_STANDALONE_EXTENDED_IMAGE}:${PRETALX_STANDALONE_EXTENDED_TAG}
+    build:
+      context: ./context/standalone/extended
+      dockerfile: Dockerfile.debian
+      args:
+        PRETALX_BASE_IMAGE: ${PRETALX_STANDALONE_EXTENDED_BASE_IMAGE}
+        PRETALX_BASE_TAG: ${PRETALX_STANDALONE_EXTENDED_BASE_TAG}
+  worker: *build-standalone-extended
+  cron: *build-standalone-extended
+  migrations: *build-standalone-extended

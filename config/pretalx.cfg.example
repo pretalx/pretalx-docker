@@ -1,0 +1,36 @@
+[filesystem]
+# use PRETALX_FILESYSTEM_* env vars
+
+[site]
+; never run debug in production. Make sure you serve all requests for the
+; `/static/` and `/media/` paths when debug is False.
+; See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
+debug = False
+url = http://localhost:8080
+
+[database]
+backend = postgresql
+name = pretalx
+user = pretalx
+password = veryunsecureplschange
+host = postgres
+port = 5432
+
+#[mail]
+#from = some@email.address
+#host = smtp
+#port = 25
+#user = admin
+#password = something
+#tls = False
+#ssl = True
+
+[celery]
+backend = redis://redis/1
+broker = redis://redis/2
+
+[redis]
+location=redis://redis/0
+; Remove the following line if you are unsure about your redis' security
+; to reduce impact if redis gets compromised.
+sessions = true

@@ -1,0 +1,10 @@
+ARG BASE_IMAGE=docker.io/pretalx/base
+ARG BASE_TAG=3.12-bookworm
+
+FROM ${BASE_IMAGE}:${BASE_TAG}
+
+# Set pretalx version
+ARG PRETALX_VERSION=2024.1.0
+
+# Install Pretalx with Postgres and Redis database adapters
+RUN pip3 install -U --user pretalx[mysql,postgres,redis]==${PRETALX_VERSION}

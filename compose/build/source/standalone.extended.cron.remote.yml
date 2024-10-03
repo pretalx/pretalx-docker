@@ -1,0 +1,24 @@
+services:
+  app: &build-standalone-extended-cron
+    image: ${PRETALX_SOURCE_STANDALONE_EXTENDED_CRON_IMAGE}:${PRETALX_SOURCE_STANDALONE_EXTENDED_CRON_TAG}
+    build:
+      context: ./context/source/standalone.extended.cron
+      dockerfile: Dockerfile.debian.remote
+      args:
+        PRETALX_BASE_IMAGE: ${PRETALX_SOURCE_STANDALONE_EXTENDED_CRON_BASE_IMAGE}
+        PRETALX_BASE_TAG: ${PRETALX_SOURCE_STANDALONE_EXTENDED_CRON_BASE_TAG}
+    command: supervisor
+    # volumes:
+    #   - ./config/pretalx.cfg:/pretalx/.pretalx.cfg
+  worker:
+    <<: *build-standalone-extended-cron
+    deploy:
+      replicas: 0
+  cron:
+    <<: *build-standalone-extended-cron
+    deploy:
+      replicas: 0
+  migrations:
+    <<: *build-standalone-extended-cron
+    deploy:
+      replicas: 0

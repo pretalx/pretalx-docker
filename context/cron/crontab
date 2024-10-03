@@ -1,0 +1,2 @@
+*/15 * * * * su pretalx -c 'python -m pretalx runperiodic' > /proc/1/fd/1 2> /proc/1/fd/2
+0 4 1 * * su pretalx -c 'python -m pretalx clearsessions' > /proc/1/fd/1 2> /proc/1/fd/2

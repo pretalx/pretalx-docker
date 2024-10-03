@@ -1,0 +1,31 @@
+services:
+  app: &build-standalone-local
+    image: ${PRETALX_SOURCE_STANDALONE_IMAGE}:${PRETALX_SOURCE_STANDALONE_LOCAL_TAG}
+    build:
+      context: ./context/source/standalone
+      dockerfile: Dockerfile.debian.local
+      args:
+        PRETALX_BASE_IMAGE: ${PRETALX_STANDALONE_BASE_IMAGE}
+        PRETALX_BASE_TAG: ${PRETALX_STANDALONE_BASE_TAG}
+    volumes:
+      # The prior submodule has been depreciated. Work from an independent clone, e.g.:
+      # git clone https://github.com/pretalx/pretalx.git ./context/source.standalone/pretalx
+      - ./context/source/local.standalone/pretalx/pyproject.toml:/pretalx/pyproject.toml
+      - ./context/source/local.standalone/pretalx/src:/pretalx/src
+      # We map the Pretalx source code into the container for convenience.
+      # All sorts of things become possible, e.g. live reloading during development
+      # of the repository at ./context/source/pretalx in the container.
+      # Make sure to apply all necessary life cycle commands, such as
+      # migrate, rebuild, regenerate_css et al.
+  worker:
+    <<: *build-standalone-local
+    deploy:
+      replicas: 0
+  cron:
+    <<: *build-standalone-local
+    deploy:
+      replicas: 0
+  migrations:
+    <<: *build-standalone-local
+    deploy:
+      replicas: 0
