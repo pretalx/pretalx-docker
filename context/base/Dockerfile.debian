@@ -51,7 +51,8 @@ RUN pip3 install -U --user pip \
                             wheel \
                             typing \
                             pylibmc \
-                            gunicorn
+                            gunicorn \
+                            dj-static
 
 # Shared resources used
 VOLUME ["/data", "/public"]

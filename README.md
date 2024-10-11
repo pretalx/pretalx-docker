@@ -260,7 +260,7 @@ The following variables are available to configure the Gunicorn web process:
 - `GUNICORN_FORWARDED_ALLOW_IPS`
 - `GUNICORN_BIND_ADDR`
 
-Please refer to [`context/default/entrypoint.sh`](./context/default/entrypoint.sh) and [the Gunicorn settings documentation](https://docs.gunicorn.org/en/stable/settings.html) about their usage.
+Please refer to [`context/default/entrypoint.sh`](./context/base/entrypoint.sh) and [the Gunicorn settings documentation](https://docs.gunicorn.org/en/stable/settings.html) about their usage.
 
 ## Building
 

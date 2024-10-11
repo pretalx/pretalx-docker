@@ -3,12 +3,15 @@ ARG PRETALX_BASE_TAG=2024.2.1
 
 FROM ${PRETALX_BASE_IMAGE}:${PRETALX_BASE_TAG}
 
+USER root
 RUN apt update && \
     apt install -y \
                 cron \
                 --no-install-recommends && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    ln -s /usr/sbin/cron /usr/bin/cron && \
+    echo 'pretalx ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord' >> /etc/sudoers
 
 COPY --chown=0 --chmod=644 crontab /etc/crontab
 RUN crontab /etc/crontab

@@ -33,24 +33,24 @@ on:
         default: 3.12-bookworm
 
       image-tags:
-        description: "Optional additional image tags, takes a YAML multiline string |"
+        description: "Additional image tags, takes a YAML multiline string |"
         type: string
         required: false
         default: ""
       file:
-        description: "Optional path to a Dockerfile to build, relative to the build context, string"
+        description: "Path to build another Dockerfile, relative to the build context"
         type: string
         required: false
         default: Dockerfile.debian
 
 
       docker_io:
-        description: "Optional toggle for disabling Docker Hub Registry, boolean"
+        description: "Toggle to disable Docker Hub Registry"
         type: boolean
         required: false
         default: true
       ghcr_io:
-        description: "Optional toggle for disabling GitHub Container Registry, boolean"
+        description: "Toggle to disable GitHub Container Registry"
         type: boolean
         required: false
         default: true
@@ -113,12 +113,15 @@ jobs:
         tags: |
           type=match,pattern=v(.*),group=1
           type=match,pattern=\d+-\d+-\d+
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
           type=sha
           ${{ inputs.image-tags || env.image-tags }}
           ${{ inputs.base-tag || env.base-tag }}
+          latest
 
     -
       name: Set up QEMU
@@ -217,11 +220,14 @@ jobs:
         tags: |
           type=match,pattern=v(.*),group=1
           type=match,pattern=\d+-\d+-\d+
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
           type=sha
           ${{ inputs.image-tags || env.image-tags }}
+          latest
 
     -
       name: Set up QEMU
@@ -329,11 +335,14 @@ jobs:
         tags: |
           type=match,pattern=v(.*),group=1
           type=match,pattern=\d+-\d+-\d+
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
           type=sha
           ${{ inputs.image-tags || env.image-tags }}
+          latest
 
     -
       name: Set up QEMU
@@ -446,6 +455,9 @@ jobs:
           type=ref,event=pr,suffix=-cron
           type=sha,suffix=-cron
           ${{ inputs.image-tags || env.image-tags }}
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          latest
 
     -
       name: Set up QEMU
@@ -549,11 +561,14 @@ jobs:
         tags: |
           type=match,pattern=v(.*),group=1
           type=match,pattern=\d+-\d+-\d+
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
           type=sha
           ${{ inputs.image-tags || env.image-tags }}
+          latest
 
     -
       name: Set up QEMU
@@ -661,11 +676,15 @@ jobs:
         tags: |
           type=match,pattern=v(.*),group=1
           type=match,pattern=\d+-\d+-\d+
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
           type=sha
           ${{ inputs.image-tags || env.image-tags }}
+          ${{ inputs.base-tag || env.base-tag }}
+          latest
 
     -
       name: Set up QEMU
@@ -773,11 +792,14 @@ jobs:
         tags: |
           type=match,pattern=v(.*),group=1,suffix=-cron
           type=match,pattern=\d+-\d+-\d+,suffix=-cron
+          type=semver,pattern={{version}},suffix=-cron
+          type=semver,pattern={{major}}.{{minor}},suffix=-cron
           type=ref,event=branch,suffix=-cron
           type=ref,event=tag,suffix=-cron
           type=ref,event=pr,suffix=-cron
           type=sha,suffix=-cron
           ${{ inputs.image-tags || env.image-tags }}
+          latest
 
     -
       name: Set up QEMU
