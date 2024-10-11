@@ -451,13 +451,13 @@ This further assumes the presence of a fully configured `traefik` instance conne
 Review the configuration you are about to launch:
 
 ```sh
-docker compose -f compose.yml -f compose/traefik.yml config
+docker compose --env-file .env -f compose.yml -f compose/traefik.yml --env-file .env.build -f compose/build/extended.cron.yml config
 ```
 
 Launch a selected configuration:
 
 ```sh
-docker compose -f compose.yml -f compose/traefik.yml --env-file .env.build -f compose/build/extended.yml up -d
+docker compose --env-file .env -f compose.yml -f compose/traefik.yml --env-file .env.build -f compose/build/extended.cron.yml up -d
 ```
 
 > - *Continue* to **Initialisation** below.
