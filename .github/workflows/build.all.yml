@@ -33,24 +33,24 @@ on:
         default: 3.12-bookworm
 
       image-tags:
-        description: "Optional additional image tags, takes a YAML multiline string |"
+        description: "Additional image tags, takes a YAML multiline string |"
         type: string
         required: false
         default: ""
       file:
-        description: "Optional path to a Dockerfile to build, relative to the build context, string"
+        description: "Path to build another Dockerfile, relative to the build context"
         type: string
         required: false
         default: Dockerfile.debian
 
 
       docker_io:
-        description: "Optional toggle for disabling Docker Hub Registry, boolean"
+        description: "Toggle to disable Docker Hub Registry"
         type: boolean
         required: false
         default: true
       ghcr_io:
-        description: "Optional toggle for disabling GitHub Container Registry, boolean"
+        description: "Toggle to disable GitHub Container Registry"
         type: boolean
         required: false
         default: true

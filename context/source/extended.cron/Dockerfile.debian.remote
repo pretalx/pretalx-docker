@@ -1,4 +1,3 @@
-
 ARG PRETALX_BASE_IMAGE=docker.io/library/pretalx/pretalx
 ARG PRETALX_BASE_TAG=2024.1.0
 
@@ -15,12 +14,15 @@ RUN pip3 install --user git+https://github.com/pretalx/prtx-faq.git@master#egg=p
 USER root
 
 # Install cron
+USER root
 RUN apt update && \
     apt install -y \
                 cron \
                 --no-install-recommends && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    ln -s /usr/sbin/cron /usr/bin/cron && \
+    echo 'pretalx ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord' >> /etc/sudoers
 
 # Provide and enable crontab
 COPY --chown=0 --chmod=644 crontab /etc/crontab
