@@ -138,10 +138,9 @@ services:
     depends_on: *pretalx-depends-on-migrations
 
   cron:
-    <<: *pretalx
+    <<: *default
+    image: willfarrell/crontab:latest
     command: cron
-    user: root
-    init: true
 
     healthcheck:
       test: ['CMD-SHELL', 'bash -c "[[ \"$(pgrep cron)\" != \"\" ]]" || exit 1']
