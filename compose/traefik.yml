@@ -11,15 +11,19 @@ services:
     networks:
       - web
     labels:
-      traefik.enable: true
-      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
-      traefik.http.routers.local-localhost.tls: true
-      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
+      # traefik.enable: true
+      # traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
+      # traefik.http.routers.local-localhost.tls: true
+      # traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
       # traefik.enable: true
       # traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
       # traefik.http.routers.pretalx.entrypoints: web,websecure
       # traefik.http.services.pretalx.loadbalancer.server.port: 8080
-      traefik.http.routers.pretalx.tls:true
+      traefik.enable: true
+      traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
+      traefik.http.routers.pretalx.entrypoints: websecure
+      traefik.http.routers.pretalx.tls: true
+      traefik.http.routers.pretalx.tls.certresolver: letsencrypt
 
   traefik:
     image: traefik:v2.10
@@ -28,15 +32,31 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.websecure.http.tls.certresolver=letsencrypt"
+      - "--entrypoints.websecure.http.middlewares=secure-headers@file"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+      # dashboard config
+      - "--api.dashboard=true"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
+      - "./acme.json:/acme.json"
+      - "./traefik_dynamic.yml:/traefik_dynamic.yml"
     labels:
-      - traefik.enable: true
-      - traefik.http.routers.pretalx.tls.certresolver: letsencrypt
+      traefik.enable: true
+      traefik.http.routers.pretalx.tls.certresolver: letsencrypt
+      # dashboard config
+      traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
+      traefik.http.routers.dashboard.service=api@internal
+      traefik.http.routers.dashboard.middlewares=auth
+      traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}
