@@ -7,7 +7,6 @@ networks:
 
 services:
   web:
-  # app:
     networks:
       - web
     labels:
@@ -16,6 +15,7 @@ services:
       traefik.http.routers.pretalx.entrypoints: websecure
       traefik.http.routers.pretalx.tls: true
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
+      traefik.http.services.pretalx.loadbalancer.server.port: 80
 
   traefik:
     image: traefik:v2.10
@@ -42,8 +42,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
-      - "./acme.json:/acme.json"
-      - "./traefik_dynamic.yml:/traefik_dynamic.yml"
+      - "./compose/traefik_dynamic.yml:/traefik_dynamic.yml"
     labels:
       traefik.enable: true
       # dashboard config
