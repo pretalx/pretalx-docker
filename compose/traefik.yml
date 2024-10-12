@@ -1,9 +1,13 @@
 networks:
   web:
+    # Traefik is running in the same network as the app
+    # this network might be started before the app network
+    # so we need to explicitly set external: true
     external: true
 
 services:
   web:
+  # app:
     networks:
       - web
     labels:
@@ -11,3 +15,20 @@ services:
       traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
       traefik.http.routers.local-localhost.tls: true
       traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
+      # traefik.enable: true
+      # traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
+      # traefik.http.routers.pretalx.entrypoints: web,websecure
+      # traefik.http.services.pretalx.loadbalancer.server.port: 8080
+
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
