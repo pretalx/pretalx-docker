@@ -57,6 +57,6 @@ services:
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       # dashboard config
       traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
-      traefik.http.routers.dashboard.service=api@internal
-      traefik.http.routers.dashboard.middlewares=auth
-      traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}
+      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.dashboard.middlewares: auth
+      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
