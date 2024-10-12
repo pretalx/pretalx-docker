@@ -51,5 +51,6 @@ services:
       traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
       traefik.http.routers.dashboard.service: api@internal
       traefik.http.routers.dashboard.middlewares: auth@file
+      traefik.http.middlewares.auth.basicauth.users=pretalx:$apr1$dvz1EqdL$uZiKyRPAviG/FOPSK7LcB0
     environment:
       - TRAEFIK_AUTH
