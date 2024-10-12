@@ -36,17 +36,18 @@ services:
       - "--accesslog.filepath=/var/log/traefik/access.log"
       # dashboard config
       - "--api.dashboard=true"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
-      - "./compose/traefik_dynamic.yml:/traefik_dynamic.yml"
+      - "./compose/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro"
     labels:
       traefik.enable: true
       # dashboard config
       traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
       traefik.http.routers.dashboard.service: api@internal
-      traefik.http.routers.dashboard.middlewares: auth
-      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
+      traefik.http.routers.dashboard.middlewares: auth@file
