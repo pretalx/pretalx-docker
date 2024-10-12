@@ -11,14 +11,6 @@ services:
     networks:
       - web
     labels:
-      # traefik.enable: true
-      # traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
-      # traefik.http.routers.local-localhost.tls: true
-      # traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
-      # traefik.enable: true
-      # traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
-      # traefik.http.routers.pretalx.entrypoints: web,websecure
-      # traefik.http.services.pretalx.loadbalancer.server.port: 8080
       traefik.enable: true
       traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
       traefik.http.routers.pretalx.entrypoints: websecure
@@ -54,7 +46,6 @@ services:
       - "./traefik_dynamic.yml:/traefik_dynamic.yml"
     labels:
       traefik.enable: true
-      traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       # dashboard config
       traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
       traefik.http.routers.dashboard.service: api@internal
