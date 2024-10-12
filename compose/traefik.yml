@@ -19,6 +19,7 @@ services:
       # traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
       # traefik.http.routers.pretalx.entrypoints: web,websecure
       # traefik.http.services.pretalx.loadbalancer.server.port: 8080
+      traefik.http.routers.pretalx.tls:true
 
   traefik:
     image: traefik:v2.10
@@ -27,8 +28,15 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    labels:
+      - traefik.enable: true
+      - traefik.http.routers.pretalx.tls.certresolver: letsencrypt
