@@ -22,11 +22,10 @@ services:
   traefik:
     image: traefik:v3.1
     depends_on:
-    - pretalx
+    - app
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=false"
-
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
@@ -58,6 +57,6 @@ services:
       traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
       traefik.http.routers.dashboard.service: api@internal
       traefik.http.routers.dashboard.middlewares: auth@file
-      traefik.http.middlewares.auth.basicauth.users: pretalx:\$apr1\$dvz1EqdL\$uZiKyRPAviG/FOPSK7LcB0
+      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
     environment:
       - TRAEFIK_AUTH
