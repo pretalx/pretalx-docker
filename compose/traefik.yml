@@ -6,8 +6,7 @@ networks:
     external: true
 
 services:
-  # web:
-  app:
+  web:
     networks:
       - web
     labels:
@@ -21,8 +20,10 @@ services:
 
   traefik:
     image: traefik:v3.1
+    networks:
+      - web
     depends_on:
-    - app
+    - web
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=false"
