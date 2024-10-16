@@ -17,6 +17,7 @@ services:
       traefik.http.routers.pretalx.tls.certresolver: letsencrypt
       traefik.http.services.pretalx.loadbalancer.server.port: 80
       traefik.docker.network: web
+      traefik.http.routers.pretalx.middlewares: secure-headers@file
 
   traefik:
     image: traefik:v3.1
@@ -45,6 +46,8 @@ services:
       - "--api.dashboard=true"
       - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
       - "--providers.file.watch=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
     ports:
       - "80:80"
       - "443:443"
@@ -60,4 +63,4 @@ services:
       traefik.http.routers.dashboard.middlewares: auth@file
       traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
     environment:
-      - TRAEFIK_AUTH
+      - TRAEFIK_AUTH=${TRAEFIK_AUTH}
