@@ -54,7 +54,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
-      - "./compose/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro"
+      - "./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro"
     labels:
       traefik.enable: true
       # dashboard config
