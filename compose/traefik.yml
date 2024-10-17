@@ -60,7 +60,3 @@ services:
       # dashboard config
       traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
       traefik.http.routers.dashboard.service: api@internal
-      traefik.http.routers.dashboard.middlewares: auth@file
-      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
-    environment:
-      - TRAEFIK_AUTH=${TRAEFIK_AUTH}
