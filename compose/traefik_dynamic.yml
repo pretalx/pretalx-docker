@@ -7,6 +7,9 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         stsSeconds: 31536000
-    auth:
-      users:
-        - ${TRAEFIK_AUTH}
+    authtraefik:
+      basicAuth:
+        removeheader: true
+        realm: "traefik-dashboard"
+        users:
+          - ${TRAEFIK_AUTH}
