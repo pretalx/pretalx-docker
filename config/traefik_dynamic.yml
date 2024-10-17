@@ -7,9 +7,12 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         stsSeconds: 31536000
-    authtraefik:
+        contentTypeNosniff: true
+        xFrameOptions: DENY
+        referrerPolicy: strict-origin-when-cross-origin
+        permissionsPolicy: "camera=(), microphone=(), geolocation=()"
+    auth:
       basicAuth:
-        removeheader: true
-        realm: "traefik-dashboard"
+        removeHeader: true
         users:
           - ${TRAEFIK_AUTH}

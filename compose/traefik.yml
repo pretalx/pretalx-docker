@@ -10,61 +10,51 @@ services:
     networks:
       - web
     labels:
-      traefik.enable: true
-      traefik.http.routers.pretalx.rule: Host(`${FQDN}`)
-      traefik.http.routers.pretalx.entrypoints: websecure
-      traefik.http.routers.pretalx.tls: true
-      traefik.http.routers.pretalx.tls.certresolver: letsencrypt
-      traefik.http.services.pretalx.loadbalancer.server.port: 80
-      traefik.docker.network: web
-      traefik.http.routers.pretalx.middlewares: secure-headers@file
+      - traefik.enable=true
+      - traefik.http.routers.pretalx.rule=Host(`${FQDN}`)
+      - traefik.http.routers.pretalx.entrypoints=websecure
+      - traefik.http.routers.pretalx.tls=true
+      - traefik.http.routers.pretalx.tls.certresolver=letsencrypt
+      - traefik.http.services.pretalx.loadbalancer.server.port=80
+      - traefik.docker.network=web
+      - traefik.http.routers.pretalx.middlewares=secure-headers@file
 
   traefik:
     image: traefik:v3.1
     networks:
       - web
     depends_on:
-    - web
+      - web
     command:
-      - "--log.level=DEBUG"
-      - "--api.insecure=false"
+      - "--log.level=INFO"
+      - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.traefik.address=:8080"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--entrypoints.websecure.http.tls=true"
-      - "--entrypoints.websecure.http.tls.certresolver=letsencrypt"
-      - "--entrypoints.websecure.http.middlewares=secure-headers@file"
       - "--accesslog=true"
       - "--accesslog.filepath=/var/log/traefik/access.log"
-      # dashboard config
-      - "--api.dashboard=true"
-      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
-      - "--providers.file.watch=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--api.dashboard=true"
-      - "--api.insecure=false"
-      - "--entrypoints.traefik.address=:8080"
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
-      - "./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+      - ./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
     labels:
-      traefik.enable: true
-      # dashboard config
-      traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
-      traefik.http.routers.dashboard.service: api@internal
-      traefik.http.routers.api.rule: Host(`localhost`) && PathPrefix(`/api`)
-      traefik.http.routers.api.service: api@internal
-      traefik.http.routers.api.entrypoints: traefik
-      traefik.http.routers.api.middlewares: auth
-      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`traefik.${FQDN}`)
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.tls=true
+      - traefik.http.routers.dashboard.tls.certresolver=letsencrypt
+      - traefik.http.routers.dashboard.middlewares=auth
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}
