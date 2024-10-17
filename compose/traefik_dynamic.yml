@@ -8,6 +8,5 @@ http:
         stsPreload: true
         stsSeconds: 31536000
     auth:
-      basicAuth:
-        users:
-          - "${TRAEFIK_AUTH}"
+      users:
+        - ${TRAEFIK_AUTH}
