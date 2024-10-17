@@ -58,5 +58,7 @@ services:
     labels:
       traefik.enable: true
       # dashboard config
-      traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
-      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.dashboard.rule=Host(`traefik.${FQDN}`)
+      traefik.http.routers.dashboard.service=api@internal
+      traefik.http.routers.dashboard.entrypoints=websecure
+      traefik.http.routers.dashboard.middlewares=authtraefik
