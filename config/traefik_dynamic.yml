@@ -8,8 +8,8 @@ http:
         stsPreload: true
         stsSeconds: 31536000
         contentTypeNosniff: true
-        xFrameOptions: DENY
-        referrerPolicy: strict-origin-when-cross-origin
+        frameDeny: true
+        referrerPolicy: "strict-origin-when-cross-origin"
         permissionsPolicy: "camera=(), microphone=(), geolocation=()"
     auth:
       basicAuth:

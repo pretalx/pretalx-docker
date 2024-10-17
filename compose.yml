@@ -51,6 +51,9 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:80 | grep -q 200"]
       <<: *healthcheck
+    networks:
+      - data
+      - web
 
   app:
     <<: [*pretalx, *pretalx-depends-on]

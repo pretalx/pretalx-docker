@@ -9,6 +9,7 @@ services:
   web:
     networks:
       - web
+      - data
     labels:
       - traefik.enable=true
       - traefik.http.routers.pretalx.rule=Host(`${FQDN}`)
