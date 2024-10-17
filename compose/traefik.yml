@@ -48,6 +48,9 @@ services:
       - "--providers.file.watch=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--entrypoints.traefik.address=:8080"
     ports:
       - "80:80"
       - "443:443"
@@ -58,7 +61,10 @@ services:
     labels:
       traefik.enable: true
       # dashboard config
-      traefik.http.routers.dashboard.rule=Host(`traefik.${FQDN}`)
-      traefik.http.routers.dashboard.service=api@internal
-      traefik.http.routers.dashboard.entrypoints=websecure
-      traefik.http.routers.dashboard.middlewares=authtraefik
+      traefik.http.routers.dashboard.rule: Host(`traefik.${FQDN}`)
+      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.api.rule: Host(`localhost`) && PathPrefix(`/api`)
+      traefik.http.routers.api.service: api@internal
+      traefik.http.routers.api.entrypoints: traefik
+      traefik.http.routers.api.middlewares: auth
+      traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}

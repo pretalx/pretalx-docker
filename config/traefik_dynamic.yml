@@ -1,14 +1,4 @@
 http:
-  routers:
-    dashboard:
-      rule: "Host(`traefik.${FQDN}`)"
-      service: "api@internal"
-      entryPoints:
-        - websecure
-      middlewares:
-        - authtraefik
-        - secure-headers
-
   middlewares:
     secure-headers:
       headers:
