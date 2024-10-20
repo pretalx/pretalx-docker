@@ -1,13 +1,61 @@
 networks:
   web:
+    # Traefik is running in the same network as the app
+    # this network might be started before the app network
+    # so we need to explicitly set external: true
     external: true
 
 services:
   web:
     networks:
       - web
+      - data
     labels:
-      traefik.enable: true
-      traefik.http.routers.local-localhost.rule: Host(`${FQDN}`)
-      traefik.http.routers.local-localhost.tls: true
-      traefik.http.routers.local-localhost.tls.certresolver: letsencrypt
+      - traefik.enable=true
+      - traefik.http.routers.pretalx.rule=Host(`${FQDN}`)
+      - traefik.http.routers.pretalx.entrypoints=websecure
+      - traefik.http.routers.pretalx.tls=true
+      - traefik.http.routers.pretalx.tls.certresolver=letsencrypt
+      - traefik.http.services.pretalx.loadbalancer.server.port=80
+      - traefik.docker.network=web
+      - traefik.http.routers.pretalx.middlewares=secure-headers@file
+
+  traefik:
+    image: traefik:v3.1.6
+    networks:
+      - web
+    depends_on:
+      - web
+    command:
+      - "--log.level=INFO"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.traefik.address=:8080"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+      - ./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`traefik.${FQDN}`)
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.tls=true
+      - traefik.http.routers.dashboard.tls.certresolver=letsencrypt
+      - traefik.http.routers.dashboard.middlewares=auth
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}

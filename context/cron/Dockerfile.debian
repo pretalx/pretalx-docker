@@ -14,6 +14,8 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
     ln -s /usr/sbin/cron /usr/bin/cron && \
+    mkdir -p /var/run/crond && \
+    chown -R pretalx:pretalx /var/run/crond && \
     echo 'pretalx ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord' >> /etc/sudoers
 
 # Provide and enable crontab
