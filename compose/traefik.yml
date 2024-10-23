@@ -21,7 +21,7 @@ services:
       - traefik.http.routers.pretalx.middlewares=secure-headers@file
 
   traefik:
-    image: traefik:v3.1.6
+    image: docker.io/library/traefik:v3.1.6
     networks:
       - web
     depends_on:
