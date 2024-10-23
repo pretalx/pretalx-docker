@@ -66,7 +66,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    read_only: true
 
   app:
     <<: [*pretalx, *pretalx-depends-on]
@@ -74,7 +73,6 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080 | grep -q 200"]
       <<: *healthcheck
-    user: "1000:1000"
     cap_drop:
       - ALL
     cap_add:
