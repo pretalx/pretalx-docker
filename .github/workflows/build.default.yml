@@ -35,7 +35,7 @@ jobs:
       build-args: |
         BASE_IMAGE=docker.io/library/python
         BASE_TAG=3.12-bookworm
-        PRETALX_VERSION=2024.2.1
+        PRETALX_VERSION=2024.3.0
     secrets: inherit
   call-build-and-push-ref:
     name: Call tagged image build
@@ -50,5 +50,5 @@ jobs:
       build-args: |
         BASE_IMAGE=docker.io/library/python
         BASE_TAG=3.12-bookworm
-        PRETALX_VERSION=2024.2.1
+        PRETALX_VERSION=2024.3.0
     secrets: inherit
