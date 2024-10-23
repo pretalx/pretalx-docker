@@ -7,7 +7,6 @@ volumes:
 networks:
   data:
 
-
 x-default: &default
   networks:
     - data
@@ -41,7 +40,7 @@ services:
 
   web:
     <<: *default
-    image: nginx:alpine
+    image: docker.io/library/nginx:alpine
     volumes:
       - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
       - pretalx-public:/public
@@ -61,11 +60,6 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   app:
     <<: [*pretalx, *pretalx-depends-on]
@@ -106,7 +100,7 @@ services:
 
   postgres:
     <<: *default
-    image: postgres:15-alpine
+    image: docker.io/library/postgres:15-alpine
     volumes:
       - pretalx-postgres:/var/lib/postgresql/data
     env_file:
@@ -120,7 +114,7 @@ services:
 
   redis:
     <<: *default
-    image: redis:alpine
+    image: docker.io/library/redis:alpine
     command: --save 60 1 --loglevel warning
     volumes:
       - pretalx-redis:/data
