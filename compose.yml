@@ -43,7 +43,7 @@ services:
     image: docker.io/library/nginx:alpine
     volumes:
       - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
-      - pretalx-public:/public
+      - pretalx-public-2024.3.0:/public
     depends_on:
       app:
         condition: service_healthy
