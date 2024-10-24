@@ -1,5 +1,5 @@
 networks:
-  web:
+  web-2024.3.0:
     # Traefik is running in the same network as the app
     # this network might be started before the app network
     # so we need to explicitly set external: true
@@ -8,8 +8,8 @@ networks:
 services:
   web:
     networks:
-      - web
-      - data
+      - web-2024.3.0
+      - data-2024.3.0
     labels:
       - traefik.enable=true
       - traefik.http.routers.pretalx.rule=Host(`${FQDN}`)
@@ -17,15 +17,15 @@ services:
       - traefik.http.routers.pretalx.tls=true
       - traefik.http.routers.pretalx.tls.certresolver=letsencrypt
       - traefik.http.services.pretalx.loadbalancer.server.port=80
-      - traefik.docker.network=web
+      - traefik.docker.network=web-2024.3.0
       - traefik.http.routers.pretalx.middlewares=secure-headers@file
 
   traefik:
     image: docker.io/library/traefik:v3.1.6
     networks:
-      - web
+      - web-2024.3.0
     depends_on:
-      - web
+      - web-2024.3.0
     command:
       - "--log.level=INFO"
       - "--api.dashboard=true"

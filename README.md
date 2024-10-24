@@ -98,9 +98,9 @@ GitHub Actions workflows to build the images in CI.
 Scripts to perfom bulk operations on the repository.
 
 - `clean`, removes generated data, including built images and an eventual clone of pretalx for the local source overlay
-- `build`, builds the `pretalx/base:3.12-bookworm`, `pretalx/pretalx:2024.1.0`, `pretalx/pretalx-extended:2024.1.0` and `pretalx/pretalx-extended:2024.1.0-cron` images
+- `build`, builds the `pretalx/base:3.12-bookworm`, `pretalx/pretalx:2024.3.0`, `pretalx/pretalx-extended:2024.3.0` and `pretalx/pretalx-extended:2024.3.0-cron` images
 - `build.source`, builds the `pretalx/base:3.12-bookworm`, `pretalx/pretalx-extended:main-source-remote-cron`, `pretalx/standalone:main-source-{local,remote}` and `pretalx/standalone-extended:main-source-remote-cron` images
-- `build.standalone`, builds the `pretalx/pretalx:2024.1.0`, `pretalx/standalone:2024.1.0` and `pretalx/standalone-extended:2024.1.0{,-cron}` images
+- `build.standalone`, builds the `pretalx/pretalx:2024.3.0`, `pretalx/standalone:2024.3.0` and `pretalx/standalone-extended:2024.3.0{,-cron}` images
 
 #### compose/
 
@@ -502,7 +502,7 @@ You will see this configuration summary and the initialisation wizard:
 
 ```console
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ ┏━━━━━━━━━━┓  pretalx v2024.1.0                                                 ┃
+┃ ┏━━━━━━━━━━┓  pretalx v2024.3.0                                                 ┃
 ┃ ┃  ┌─·──╮  ┃  Settings:                                                         ┃
 ┃ ┃  │  O │  ┃  Database:  pretalx (postgresql)                                   ┃
 ┃ ┃  │ ┌──╯  ┃  Logging:   /data/logs                                             ┃

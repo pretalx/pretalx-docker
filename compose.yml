@@ -1,15 +1,15 @@
 volumes:
-  pretalx-public:
-  pretalx-data:
-  pretalx-postgres:
-  pretalx-redis:
+  pretalx-public-2024.3.0:
+  pretalx-data-2024.3.0:
+  pretalx-postgres-2024.3.0:
+  pretalx-redis-2024.3.0:
 
 networks:
-  data:
+  data-2024.3.0:
 
 x-default: &default
   networks:
-    - data
+    - data-2024.3.0
   restart: unless-stopped
 
 x-healthcheck: &healthcheck
@@ -22,8 +22,8 @@ x-pretalx: &pretalx
   <<: *default
   image: ${PRETALX_IMAGE}:${PRETALX_TAG}
   volumes:
-    - pretalx-data:/data
-    - pretalx-public:/public
+    - pretalx-data-2024.3.0:/data
+    - pretalx-public-2024.3.0:/public
   env_file:
     - .env
 
@@ -54,7 +54,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - data
+      - data-2024.3.0
     deploy:
       resources:
         limits:
@@ -102,9 +102,11 @@ services:
     <<: *default
     image: docker.io/library/postgres:15-alpine
     volumes:
-      - pretalx-postgres:/var/lib/postgresql/data
-    env_file:
-      - .env
+      - pretalx-postgres-2024.3.0:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       start_period: 20s
@@ -117,7 +119,7 @@ services:
     image: docker.io/library/redis:alpine
     command: --save 60 1 --loglevel warning
     volumes:
-      - pretalx-redis:/data
+      - pretalx-redis-2024.3.0:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       <<: *healthcheck
