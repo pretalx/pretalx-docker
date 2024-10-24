@@ -25,7 +25,7 @@ services:
     networks:
       - web-2024.3.0
     depends_on:
-      - web-2024.3.0
+      - web
     command:
       - "--log.level=INFO"
       - "--api.dashboard=true"
