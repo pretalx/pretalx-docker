@@ -12,13 +12,13 @@ services:
       - data-2024.3.0
     labels:
       - traefik.enable=true
-      - traefik.http.routers.pretalx.rule=Host(`${FQDN}`)
-      - traefik.http.routers.pretalx.entrypoints=websecure
-      - traefik.http.routers.pretalx.tls=true
-      - traefik.http.routers.pretalx.tls.certresolver=letsencrypt
-      - traefik.http.services.pretalx.loadbalancer.server.port=80
       - traefik.docker.network=web-2024.3.0
-      - traefik.http.routers.pretalx.middlewares=secure-headers@file
+      - traefik.http.routers.pretalx-prod.rule=Host(`${FQDN}`)
+      - traefik.http.routers.pretalx-prod.entrypoints=websecure
+      - traefik.http.routers.pretalx-prod.tls=true
+      - traefik.http.routers.pretalx-prod.tls.certresolver=letsencrypt
+      - traefik.http.services.pretalx-prod.loadbalancer.server.port=80
+      - traefik.http.routers.pretalx-prod.middlewares=secure-headers@file
 
   traefik:
     image: docker.io/library/traefik:v3.1.6
@@ -52,10 +52,10 @@ services:
       - ./config/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
     labels:
       - traefik.enable=true
-      - traefik.http.routers.dashboard.rule=Host(`traefik.${FQDN}`)
-      - traefik.http.routers.dashboard.service=api@internal
-      - traefik.http.routers.dashboard.entrypoints=websecure
-      - traefik.http.routers.dashboard.tls=true
-      - traefik.http.routers.dashboard.tls.certresolver=letsencrypt
-      - traefik.http.routers.dashboard.middlewares=auth
+      - traefik.http.routers.dashboard-prod.rule=Host(`traefik.${FQDN}`)
+      - traefik.http.routers.dashboard-prod.service=api@internal
+      - traefik.http.routers.dashboard-prod.entrypoints=websecure
+      - traefik.http.routers.dashboard-prod.tls=true
+      - traefik.http.routers.dashboard-prod.tls.certresolver=letsencrypt
+      - traefik.http.routers.dashboard-prod.middlewares=auth
       - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}
