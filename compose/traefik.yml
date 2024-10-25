@@ -43,6 +43,8 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--accesslog=true"
       - "--accesslog.filepath=/var/log/traefik/access.log"
+      # STAGING
+      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
     ports:
       - "8080:80"
       - "5443:443"
