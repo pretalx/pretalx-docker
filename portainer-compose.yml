@@ -1,0 +1,186 @@
+volumes:
+  pretalx-public:
+  pretalx-data:
+  pretalx-postgres:
+  pretalx-redis:
+
+networks:
+  data:
+
+env_file:
+  - stack.env
+
+x-default: &default
+  networks:
+    - pretalx
+  restart: unless-stopped
+
+x-healthcheck: &healthcheck
+  start_period: 10s
+  interval: 30s
+  retries: 5
+  timeout: 3s
+
+x-pretalx: &pretalx
+  <<: *default
+  image: ${PRETALX_IMAGE}:${PRETALX_TAG}
+  volumes:
+    - pretalx-data:/data
+    - pretalx-public:/public
+  environment:
+    - PRETALX_LOG_LEVEL
+
+    - PRETALX_DB_NAME
+    - PRETALX_DB_USER
+    - PRETALX_DB_PASS
+
+    - PRETALX_DATA_DIR
+    - PRETALX_FILESYSTEM_LOGS
+
+    - PRETALX_FILESYSTEM_MEDIA
+    - PRETALX_FILESYSTEM_STATIC
+
+    - PRETALX_DEBUG
+    - PRETALX_SITE_URL
+
+    - PRETALX_SITE_CSP
+    - PRETALX_SITE_CSP_STYLE
+    - PRETALX_SITE_CSP_SCRIPT
+    - PRETALX_SITE_CSP_IMG
+    - PRETALX_SITE_CSP_FORM
+
+    - PRETALX_DB_TYPE
+    - PRETALX_DB_HOST
+    - PRETALX_DB_PORT
+
+    - PRETALX_MAIL_FROM
+    - PRETALX_MAIL_HOST
+    - PRETALX_MAIL_PORT
+    - PRETALX_MAIL_USER
+    - PRETALX_MAIL_PASSWORD
+    - PRETALX_MAIL_TLS
+    - PRETALX_MAIL_SSL
+
+    - PRETALX_CELERY_BACKEND
+    - PRETALX_CELERY_BROKER
+
+    - PRETALX_REDIS
+    - PRETALX_REDIS_SESSIONS
+
+    - PRETALX_LOGGING_EMAIL
+    - PRETALX_LOGGING_EMAIL_LEVEL
+
+    - PRETALX_LANGUAGE_CODE
+    - PRETALX_TIME_ZONE
+
+x-pretalx-depends-on-databases: &pretalx-depends-on-databases
+  redis:
+    condition: service_healthy
+  postgres:
+    condition: service_healthy
+
+x-pretalx-depends-on-migrations: &pretalx-depends-on-migrations
+  <<: *pretalx-depends-on-databases
+  migrations:
+    condition: service_completed_successfully
+
+
+services:
+
+  web:
+    <<: *default
+    image: nginx:alpine
+
+    deploy:
+      replicas: 1
+
+    healthcheck:
+      test: ['CMD-SHELL', 'ash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:80) == \"200\" ]]" || exit 1']
+      <<: *healthcheck
+
+    depends_on:
+      app:
+        condition: service_healthy
+
+    volumes:
+      - type: bind
+        source: ./config/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+        bind:
+          selinux: z
+          create_host_path: true
+      - pretalx-public:/public
+
+
+  app:
+    <<: *pretalx
+    command: gunicorn
+
+    deploy:
+      replicas: 1
+
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "[[ $(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080) == \"200\" ]]" || exit 1']
+      <<: *healthcheck
+
+    depends_on: *pretalx-depends-on-migrations
+
+  worker:
+    <<: *pretalx
+    command: celery
+
+    deploy:
+      replicas: 1
+
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "[[ \"$(pgrep celery)\" != \"\" ]]" || exit 1']
+      <<: *healthcheck
+
+    depends_on: *pretalx-depends-on-migrations
+
+  cron:
+    <<: *pretalx
+    command: cron
+    user: root
+    init: true
+
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "[[ \"$(pgrep cron)\" != \"\" ]]" || exit 1']
+      <<: *healthcheck
+
+    depends_on: *pretalx-depends-on-migrations
+
+  migrations:
+    <<: *pretalx
+    command: migrate
+    restart: no
+
+    depends_on: *pretalx-depends-on-databases
+
+
+  postgres:
+    <<: *default
+    image: docker.io/library/postgres:15-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - pretalx-postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+
+  redis:
+    <<: *default
+    image: docker.io/library/redis:alpine
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      <<: *healthcheck
+    volumes:
+      - pretalx-redis:/data
