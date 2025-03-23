@@ -3,7 +3,11 @@
 This repository contains a docker-compose setup as well as an [ansible](https://docs.ansible.com) role for a
 [pretalx](https://github.com/pretalx/pretalx) installation based on docker.
 
-**Please note that this repository is provided by the pretalx community, and not supported by the pretalx team.**
+**⚠️ Please note that this repository is provided by the pretalx community, and not supported by the pretalx team. ⚠️**
+
+**⚠️ The files in this repository may not support the current pretalx version, or may be undocumented, not secure, and/or
+outdated. Please make sure you read the files before executing them, and check the
+[issues](https://github.com/pretalx/pretalx-docker/issues) for further information. ⚠️**
 
 ## Installation with docker-compose
 
