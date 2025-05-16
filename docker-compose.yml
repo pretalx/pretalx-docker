@@ -1,10 +1,11 @@
-version: '3'
 services:
   pretalx:
     image: pretalx/standalone:latest
+    # image: pretalx/dev
+    # build: .
     container_name: pretalx
     restart: unless-stopped
-    depends_on: 
+    depends_on:
       - redis
       - db
     environment:
@@ -13,37 +14,31 @@ services:
       PRETALX_FILESYSTEM_STATIC: /public/static
     ports:
       - "80:80"
-    volumes: 
+    volumes:
       - ./conf/pretalx.cfg:/etc/pretalx/pretalx.cfg:ro
       - pretalx-data:/data
       - pretalx-public:/public
-    labels:
-       traefik.docker.network: "pretalxdocker"
-       traefik.enable: "true"
 
   db:
-    image: mysql:latest
+    image: docker.io/library/postgres:15-alpine
     container_name: pretalx-db
     restart: unless-stopped
     volumes:
-      - pretalx-db:/var/lib/mysql
+      - pretalx-database:/var/lib/postgresql/data
     environment:
-      MYSQL_DATABASE: pretalx
-      MYSQL_USER: pretalx
-      MYSQL_PASSWORD: veryunsecureplschange
-      MYSQL_RANDOM_ROOT_PASSWORD: "1"
-    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+      POSTGRES_PASSWORD: veryunsecureplschange # same password as one that you will put in pretalx.cfg file later on
+      POSTGRES_USER: pretalx
+      POSTGRES_DB: pretalx
 
   redis:
     image: redis:latest
     container_name: pretalx-redis
     restart: unless-stopped
-    volumes: 
+    volumes:
       - pretalx-redis:/data
 
 volumes:
-  pretalx-db:
+  pretalx-database:
   pretalx-data:
   pretalx-public:
   pretalx-redis:
-
