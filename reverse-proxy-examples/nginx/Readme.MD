@@ -26,7 +26,14 @@ server {
     }
 
     location /media/ {
-      alias /path/to/pretalx/data/media/;
+      alias /path/to/pretalx/public/media/;
+      add_header Content-Disposition 'attachment; filename="$1"';
+      expires 7d;
+      access_log off;
+    }
+
+    location /static/ {
+      alias /path/to/pretalx/public/static/;
       add_header Content-Disposition 'attachment; filename="$1"';
       expires 7d;
       access_log off;
