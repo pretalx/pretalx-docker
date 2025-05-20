@@ -43,7 +43,12 @@ outdated. Please make sure you read the files before executing them, and check t
 * Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init``.
 * Set up a cronjob for periodic tasks like this ``15,45 * * * * docker exec pretalx-app pretalx runperiodic``
 
-## Installation with ansible
+## Installation with Ansible
 
 (Please note that we also provide a ansible role for use without docker
 [here](https://github.com/pretalx/ansible-pretalx/)).
+
+## Installation with Docker
+
+Another docker based pretalx installation: 
+https://github.com/allmende/pretalx-docker
