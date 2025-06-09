@@ -43,12 +43,11 @@ outdated. Please make sure you read the files before executing them, and check t
 * Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init``.
 * Set up a cronjob for periodic tasks like this ``15,45 * * * * docker exec pretalx-app pretalx runperiodic``
 
-## Installation with Ansible
+## Updates with docker-compose
 
-(Please note that we also provide a ansible role for use without docker
-[here](https://github.com/pretalx/ansible-pretalx/)).
+* Run ``docker-compose stop``, ``docker-compose pull`` and finally ``docker-compose up -d`` to upgrade to the newest version. 
 
-## Installation with Docker
+## Other installations
 
-Another docker based pretalx installation: 
-https://github.com/allmende/pretalx-docker
+* Ansible role without docker: https://github.com/pretalx/ansible-pretalx/
+* More complex docker based pretalx installation: https://github.com/allmende/pretalx-docker
