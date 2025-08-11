@@ -17,7 +17,7 @@ jobs:
       push_to_docker_hub: ${{ secrets.DOCKER_USERNAME != null && secrets.DOCKER_PASSWORD != null }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true
 
