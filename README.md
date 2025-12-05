@@ -51,3 +51,8 @@ outdated. Please make sure you read the files before executing them, and check t
 
 * Ansible role without docker: https://github.com/pretalx/ansible-pretalx/
 * More complex docker based pretalx installation: https://github.com/allmende/pretalx-docker
+
+# For pretalx-docker maintainers
+
+To upgrade the repo to a new version, e.g. `v2025.2.2`, run `just release v2025.2.2`. This should handle the submodule,
+make a properly tagged commit, and push it including the tags.
