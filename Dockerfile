@@ -1,4 +1,4 @@
-FROM python:3.10-bookworm
+FROM python:3.14-bookworm
 
 RUN apt-get update && \
     apt-get install -y git gettext libmariadb-dev libpq-dev locales libmemcached-dev build-essential \
