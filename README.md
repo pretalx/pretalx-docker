@@ -1,6 +1,6 @@
 # pretalx-docker
 
-This repository contains a docker-compose setup for a
+This repository contains a ``docker compose`` setup for a
 [pretalx](https://github.com/pretalx/pretalx) installation based on docker.
 
 **⚠️ Please note that this repository is provided by the pretalx community, and not supported by the pretalx team. ⚠️**
@@ -13,7 +13,7 @@ outdated. Please make sure you read the files before executing them, and check t
 
 ### For testing
 
-* Run ``docker-compose up -d``. After a few minutes the setup should be accessible at http://localhost/orga
+* Run ``docker compose up -d``. After a few minutes the setup should be accessible at http://localhost/orga
 * Set up a user and an organizer by running ``docker exec -it pretalx pretalx init``.
 
 ### For production
@@ -39,13 +39,13 @@ outdated. Please make sure you read the files before executing them, and check t
   Here's how to set an environment variable [in
   `docker-compose.yml`](https://docs.docker.com/compose/environment-variables/set-environment-variables/)
   or when using [`docker run` command](https://docs.docker.com/engine/reference/run/#env-environment-variables).
-* Run ``docker-compose up -d ``. After a few minutes the setup should be accessible under http://yourdomain.com/orga
+* Run ``docker compose up -d ``. After a few minutes the setup should be accessible under http://yourdomain.com/orga
 * Set up a user and an organizer by running ``docker exec -ti pretalx pretalx init``.
 * Set up a cronjob for periodic tasks like this ``15,45 * * * * docker exec pretalx-app pretalx runperiodic``
 
-## Updates with docker-compose
+## Updates with docker compose
 
-* Run ``docker-compose stop``, ``docker-compose pull`` and finally ``docker-compose up -d`` to upgrade to the newest version. 
+* Run ``docker compose stop``, ``docker compose pull`` and finally ``docker compose up -d`` to upgrade to the newest version.
 
 ## Other installations
 
