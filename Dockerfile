@@ -1,7 +1,7 @@
 FROM python:3.14-bookworm
 
 RUN apt-get update && \
-    apt-get install -y git gettext libmariadb-dev libpq-dev locales libmemcached-dev build-essential \
+    apt-get install -y git gettext libpq-dev locales libmemcached-dev build-essential \
             supervisor \
             sudo \
             locales \
@@ -20,26 +20,24 @@ RUN apt-get update && \
 
 ENV LC_ALL=C.UTF-8
 
-
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pretalx/pyproject.toml /pretalx
 COPY pretalx/src /pretalx/src
 COPY deployment/docker/pretalx.bash /usr/local/bin/pretalx
 COPY deployment/docker/supervisord.conf /etc/supervisord.conf
 
-RUN pip3 install -U pip setuptools wheel typing && \
-    pip3 install -e /pretalx/[mysql,postgres,redis] && \
-    pip3 install pylibmc && \
-    pip3 install gunicorn
+RUN uv pip install --system -U pip setuptools wheel typing && \
+    uv pip install --system -e /pretalx/[postgres,redis] && \
+    uv pip install --system pylibmc && \
+    uv pip install --system gunicorn
 
-
-RUN python3 -m pretalx makemigrations
-RUN python3 -m pretalx migrate
+RUN uv run python -m pretalx migrate
 
 RUN apt-get update && \
     apt-get install -y nodejs npm && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m pretalx rebuild
+    uv run python -m pretalx rebuild
 
 RUN chmod +x /usr/local/bin/pretalx && \
     cd /pretalx/src && \
