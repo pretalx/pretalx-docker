@@ -36,15 +36,15 @@ if [ "$PRETALX_FILESYSTEM_STATIC" != "/pretalx/src/static.dist" ] &&
    [ ! -d "$PRETALX_FILESYSTEM_STATIC" ] &&
    [ "$AUTOREBUILD" = "yes" ]; then
     mkdir -p "$PRETALX_FILESYSTEM_STATIC"
-    flock --nonblock /pretalx/.lockfile python3 -m pretalx rebuild
+    flock --nonblock /pretalx/.lockfile uv run python -m pretalx rebuild
 fi
 
 if [ "$1" == "cron" ]; then
-    exec python3 -m pretalx runperiodic
+    exec uv run python -m pretalx runperiodic
 fi
 
 if [ "$AUTOMIGRATE" = "yes" ]; then
-    python3 -m pretalx migrate --noinput
+    uv run python -m pretalx migrate --noinput
 fi
 
 if [ "$1" == "all" ]; then
@@ -67,12 +67,11 @@ if [ "$1" == "taskworker" ]; then
 fi
 
 if [ "$1" == "shell" ]; then
-    exec python3 -m pretalx shell
+    exec uv run python -m pretalx shell
 fi
 
 if [ "$1" == "upgrade" ]; then
-    python3 -m pretalx rebuild
-    exec python3 -m pretalx regenerate_css
+    uv run python -m pretalx rebuild
 fi
 
-exec python3 -m pretalx "$@"
+exec uv run python -m pretalx "$@"
