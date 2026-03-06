@@ -23,7 +23,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.push_to_docker_hub == 'true' && 'pretalx/standalone' || format('ghcr.io/{0}', github.repository) }}
 
