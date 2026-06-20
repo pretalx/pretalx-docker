@@ -1,45 +1,50 @@
+FROM python:3.14-slim-trixie AS builder
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git gettext \
+        libmariadb-dev libpq-dev libmemcached-dev build-essential \
+        nodejs npm && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --chown=root:root pretalx/pyproject.toml /pretalx/
+COPY --chown=root:root pretalx/src /pretalx/src
+
+RUN pip3 install --no-cache-dir -U pip setuptools wheel && \
+    pip3 install --no-cache-dir -e /pretalx/[mysql,postgres,redis] && \
+    pip3 install --no-cache-dir pylibmc gunicorn
+
+RUN python3 -m pretalx rebuild && \
+    rm -f /pretalx/src/pretalx.cfg /pretalx/src/data/.secret
+
+
 FROM python:3.14-slim-trixie
 
 RUN apt-get update && \
-    apt-get install -y git gettext libmariadb-dev libpq-dev locales libmemcached-dev build-essential \
-            supervisor \
-            locales \
-            --no-install-recommends && \
+    apt-get install -y --no-install-recommends \
+        gettext locales \
+        libmariadb3 libpq5 libmemcached11t64 \
+        supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     dpkg-reconfigure locales && \
     locale-gen C.UTF-8 && \
     /usr/sbin/update-locale LANG=C.UTF-8 && \
-    mkdir /etc/pretalx && \
-    mkdir /data && \
-    mkdir /public && \
+    mkdir /etc/pretalx /data /public && \
     groupadd -g 999 pretalxuser && \
     useradd -r -u 999 -g pretalxuser -d /pretalx -ms /bin/bash pretalxuser
 
 ENV LC_ALL=C.UTF-8
 
-COPY --chown=pretalxuser:pretalxuser pretalx/pyproject.toml /pretalx
-COPY --chown=pretalxuser:pretalxuser pretalx/src /pretalx/src
+COPY --from=builder /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
+COPY --from=builder /usr/local/bin/gunicorn /usr/local/bin/celery /usr/local/bin/
+COPY --from=builder /pretalx /pretalx
+
 COPY --chown=root:root deployment/docker/pretalx.bash /usr/local/bin/pretalx
 COPY --chown=root:root deployment/docker/supervisord.conf /etc/supervisord.conf
 
-RUN pip3 install -U pip setuptools wheel typing && \
-    pip3 install -e /pretalx/[mysql,postgres,redis] && \
-    pip3 install pylibmc && \
-    pip3 install gunicorn
-
-RUN apt-get update && \
-    apt-get install -y nodejs npm && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN chmod +x /usr/local/bin/pretalx
-
-RUN python3 -m pretalx makemigrations && \
-    python3 -m pretalx migrate && \
-    python3 -m pretalx rebuild && \
-    rm -f /pretalx/src/pretalx.cfg && \
-    rm -f /pretalx/src/data/.secret && \
+RUN chmod +x /usr/local/bin/pretalx && \
     chown -R pretalxuser:pretalxuser /pretalx /data /public /etc/pretalx
 
 USER pretalxuser
