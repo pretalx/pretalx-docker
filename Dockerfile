@@ -25,6 +25,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gettext locales \
         libmariadb3 libpq5 libmemcached11t64 \
+        nodejs npm \
         supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
