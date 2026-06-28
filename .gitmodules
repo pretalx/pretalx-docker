@@ -2,3 +2,6 @@
 	path = pretalx
 	url = https://github.com/LCAS/pretalx.git
 	branch = 2021.2.1-lcas
+[submodule "pretalx-socialauth"]
+	path = pretalx-socialauth
+	url = https://github.com/marc-hanheide/pretalx-socialauth.git
