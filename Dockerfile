@@ -12,7 +12,7 @@ COPY --chown=root:root pretalx/pyproject.toml /pretalx/
 COPY --chown=root:root pretalx/src /pretalx/src
 
 RUN pip3 install --no-cache-dir -U pip setuptools wheel && \
-    pip3 install --no-cache-dir -e /pretalx/[mysql,postgres,redis] && \
+    pip3 install --no-cache-dir -e /pretalx/[postgres,redis] && \
     pip3 install --no-cache-dir pylibmc gunicorn
 
 RUN python3 -m pretalx rebuild && \
@@ -24,7 +24,7 @@ FROM python:3.14-slim-trixie
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gettext locales \
-        libmariadb3 libpq5 libmemcached11t64 \
+        libmariadb3 libmemcached11t64 \
         nodejs npm \
         supervisor && \
     apt-get clean && \
@@ -40,13 +40,13 @@ ENV LC_ALL=C.UTF-8
 
 COPY --from=builder /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
 COPY --from=builder /usr/local/bin/gunicorn /usr/local/bin/celery /usr/local/bin/
-COPY --from=builder /pretalx /pretalx
+COPY --from=builder --chown=pretalxuser:pretalxuser /pretalx /pretalx
 
 COPY --chown=root:root deployment/docker/pretalx.bash /usr/local/bin/pretalx
 COPY --chown=root:root deployment/docker/supervisord.conf /etc/supervisord.conf
 
 RUN chmod +x /usr/local/bin/pretalx && \
-    chown -R pretalxuser:pretalxuser /pretalx /data /public /etc/pretalx
+    chown pretalxuser:pretalxuser /data /public /etc/pretalx
 
 USER pretalxuser
 
