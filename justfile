@@ -1,14 +1,12 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
-set fallback := true
-
-[private]
-default:
-    @just --list
+set quiet
+set fallback
+set default-list
 
 # Release a new pretalx-docker version
-[group('release')]
-[confirm("This will push tags to origin. Continue?")]
 [arg('version', pattern='v\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?')]
+[confirm("This will push tags to origin. Continue?")]
+[group('release')]
 release version:
     git pull
     git -C pretalx fetch
