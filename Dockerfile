@@ -1,7 +1,17 @@
 FROM python:3.14-slim-trixie AS builder
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Quiet down pip and npm so build logs stay readable.
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
+    PIP_NO_INPUT=1 \
+    PIP_PROGRESS_BAR=off \
+    NPM_CONFIG_LOGLEVEL=error \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_AUDIT=false \
+    NPM_CONFIG_PROGRESS=false
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends \
         git gettext \
         libmariadb-dev libpq-dev libmemcached-dev build-essential \
         nodejs npm && \
@@ -22,8 +32,8 @@ RUN python3 -m pretalx rebuild && \
 
 FROM python:3.14-slim-trixie
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends \
         gettext locales \
         libmariadb3 libmemcached11t64 \
         nodejs npm \
