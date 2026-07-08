@@ -9,6 +9,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --chown=root:root pretalx/pyproject.toml /pretalx/
+COPY --chown=root:root pretalx/_build /pretalx/_build
 COPY --chown=root:root pretalx/src /pretalx/src
 
 RUN pip3 install --no-cache-dir -U pip setuptools wheel && \
