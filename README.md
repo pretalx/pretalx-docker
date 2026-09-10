@@ -35,6 +35,7 @@ outdated. Please make sure you read the files before executing them, and check t
   * `GUNICORN_MAX_REQUESTS` and `GUNICORN_MAX_REQUESTS_JITTER` to configure the requests a worker instance will process before restarting.
   * `GUNICORN_FORWARDED_ALLOW_IPS` lets you specify which IPs to trust (i.e. which reverse proxies' `X-Forwarded-*` headers can be used to infer connection security).
   * `GUNICORN_BIND_ADDR` can be used to change the interface and port that Gunicorn will listen on. Default: `0.0.0.0:80`
+* Optional: To adjust the number of [Celery worker processes](https://docs.celeryq.dev/en/stable/userguide/workers.html#concurrency) handling background tasks, provide the container with the `CELERY_WORKERS` environment variable. Default: the number of available CPUs.
 
   Here's how to set an environment variable [in
   `docker-compose.yml`](https://docs.docker.com/compose/environment-variables/set-environment-variables/)

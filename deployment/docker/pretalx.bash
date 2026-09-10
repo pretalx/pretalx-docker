@@ -13,6 +13,8 @@ GUNICORN_MAX_REQUESTS_JITTER="${GUNICORN_MAX_REQUESTS_JITTER:-50}"
 GUNICORN_FORWARDED_ALLOW_IPS="${GUNICORN_FORWARDED_ALLOW_IPS:-127.0.0.1}"
 GUNICORN_BIND_ADDR="${GUNICORN_BIND_ADDR:-0.0.0.0:80}"
 
+CELERY_WORKERS="${CELERY_WORKERS:-$(nproc)}"
+
 AUTOMIGRATE="${AUTOMIGRATE:-yes}"
 AUTOREBUILD="${AUTOREBUILD:-yes}"
 
@@ -63,7 +65,9 @@ if [ "$1" == "webworker" ]; then
 fi
 
 if [ "$1" == "taskworker" ]; then
-    exec celery -A pretalx.celery_app worker -l info
+    exec celery -A pretalx.celery_app worker \
+        --concurrency "${CELERY_WORKERS}" \
+        -l info
 fi
 
 if [ "$1" == "shell" ]; then
