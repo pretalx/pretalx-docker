@@ -37,6 +37,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && \
         gettext locales \
         libmariadb3 libmemcached11t64 \
         nodejs npm \
+        redis-server \
         supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \

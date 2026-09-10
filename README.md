@@ -35,6 +35,10 @@ outdated. Please make sure you read the files before executing them, and check t
   * `GUNICORN_MAX_REQUESTS` and `GUNICORN_MAX_REQUESTS_JITTER` to configure the requests a worker instance will process before restarting.
   * `GUNICORN_FORWARDED_ALLOW_IPS` lets you specify which IPs to trust (i.e. which reverse proxies' `X-Forwarded-*` headers can be used to infer connection security).
   * `GUNICORN_BIND_ADDR` can be used to change the interface and port that Gunicorn will listen on. Default: `0.0.0.0:80`
+* Optional: Set `REDIS_BUNDLED` to `yes` to run Redis inside the pretalx container, instead of as a
+  separate service. pretalx is pointed at it for you, unless you set `PRETALX_REDIS` or
+  `PRETALX_CELERY_*` yourself. Its data is kept under `$PRETALX_DATA_DIR/redis`, and `REDIS_ARGS`
+  passes options on to `redis-server`, such as `--appendonly yes`.
 
   Here's how to set an environment variable [in
   `docker-compose.yml`](https://docs.docker.com/compose/environment-variables/set-environment-variables/)

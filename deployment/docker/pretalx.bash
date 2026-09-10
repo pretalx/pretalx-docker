@@ -16,6 +16,22 @@ GUNICORN_BIND_ADDR="${GUNICORN_BIND_ADDR:-0.0.0.0:80}"
 AUTOMIGRATE="${AUTOMIGRATE:-yes}"
 AUTOREBUILD="${AUTOREBUILD:-yes}"
 
+REDIS_BUNDLED="${REDIS_BUNDLED:-no}"
+
+# Point pretalx at the Redis bundled in this image. Environment variables are
+# the last config layer pretalx reads, so these take precedence over any
+# [redis]/[celery] settings in pretalx.cfg. REDIS_AUTOSTART is what
+# supervisord.conf reads to decide whether to run its redis program.
+if [ "$REDIS_BUNDLED" = "yes" ]; then
+    export REDIS_AUTOSTART=true
+    export PRETALX_REDIS="${PRETALX_REDIS:-redis://127.0.0.1:6379/0}"
+    export PRETALX_REDIS_SESSIONS="${PRETALX_REDIS_SESSIONS:-True}"
+    export PRETALX_CELERY_BACKEND="${PRETALX_CELERY_BACKEND:-redis://127.0.0.1:6379/1}"
+    export PRETALX_CELERY_BROKER="${PRETALX_CELERY_BROKER:-redis://127.0.0.1:6379/2}"
+else
+    export REDIS_AUTOSTART=false
+fi
+
 if [ "$PRETALX_FILESYSTEM_LOGS" != "/data/logs" ]; then
     export PRETALX_FILESYSTEM_LOGS
 fi
@@ -39,16 +55,45 @@ if [ "$PRETALX_FILESYSTEM_STATIC" != "/pretalx/src/static.dist" ] &&
     flock --nonblock /pretalx/.lockfile python3 -m pretalx rebuild
 fi
 
+if [ "$1" == "redis" ]; then
+    mkdir -p "$PRETALX_DATA_DIR/redis"
+    # Bind to loopback only: this Redis serves the processes in this container
+    # and runs without authentication.
+    # shellcheck disable=SC2086
+    exec redis-server --bind 127.0.0.1 --port 6379 \
+        --dir "$PRETALX_DATA_DIR/redis" $REDIS_ARGS
+fi
+
+# "all" runs nothing itself: Redis, the web worker and the task worker are all
+# supervisord programs, and the migrations happen in the web worker below.
+if [ "$1" == "all" ]; then
+    exec /usr/bin/supervisord -n -c /etc/supervisord.conf
+fi
+
+# pretalx runs Django system checks that reach for the cache and the celery
+# broker, so everything below needs Redis to be up. supervisord runs it as a
+# program of its own, but starts all of them in parallel, so wait for it.
+if [ "$REDIS_BUNDLED" = "yes" ]; then
+    for attempt in $(seq 1 120); do
+        redis-cli -h 127.0.0.1 -p 6379 ping >/dev/null 2>&1 && break
+        if [ "$attempt" = 120 ]; then
+            echo "Timed out waiting for the bundled Redis" >&2
+            exit 1
+        fi
+        sleep 0.5
+    done
+fi
+
 if [ "$1" == "cron" ]; then
     exec python3 -m pretalx runperiodic
 fi
 
-if [ "$AUTOMIGRATE" = "yes" ]; then
+# Only the web worker migrates, so that the two workers supervisord starts in
+# parallel cannot run migrations against each other. The task worker only
+# needs the broker to start up, and picks up tasks once the web worker is
+# serving anyway.
+if [ "$AUTOMIGRATE" = "yes" ] && [ "$1" != "taskworker" ]; then
     python3 -m pretalx migrate --noinput
-fi
-
-if [ "$1" == "all" ]; then
-    exec /usr/bin/supervisord -n -c /etc/supervisord.conf
 fi
 
 if [ "$1" == "webworker" ]; then
