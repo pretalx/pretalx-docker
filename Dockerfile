@@ -1,4 +1,4 @@
-FROM python:3.14-slim-trixie AS builder
+FROM python:3.15-slim-trixie AS builder
 
 # Quiet down pip and npm so build logs stay readable.
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -30,7 +30,7 @@ RUN python3 -m pretalx rebuild && \
     rm -f /pretalx/src/pretalx.cfg /pretalx/src/data/.secret
 
 
-FROM python:3.14-slim-trixie
+FROM python:3.15-slim-trixie
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends \
