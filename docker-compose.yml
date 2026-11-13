@@ -14,6 +14,9 @@ services:
       # Hint: Make sure you serve all requests for the `/static/` and `/media/` paths when debug is False. See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
       PRETALX_FILESYSTEM_MEDIA: /public/media
       PRETALX_FILESYSTEM_STATIC: /public/static
+      # To run Redis in this container, drop the `redis` service below and its
+      # `depends_on` entry above, and see the README.
+      # REDIS_BUNDLED: "yes"
     ports:
       - "80:80"
     volumes:
